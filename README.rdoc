@@ -1,0 +1,32 @@
+= launchpad
+
+This library provides an interface to access novation's launchpad programmatically. It's based on Thomas Jachmanns {ruby launchpad gem}[http://github.com/thomasjachmann/launchpad]. LEDs can be lighted and button presses can be responded to. Internally, launchpad's MIDI input/output is used to accomplish this.
+
+== Requirements
+
+* Severin Smiths {themidibus library}[http://smallbutdigital.com/themidibus.php]
+* On Mac OS X <= 10.6.2 you need Humatics {mmj library}[http://www.humatic.de/htools/mmj.htm] as well. Yes, go and spend those 3.5 - it's worth it!
+
+
+== Installation
+
+Download the zipped library file and move it to the code folder insider your project. Do the same with *themidibus* library. If needed,
+install *mmj* library as described in their documentation.
+
+== Usage
+
+For more details, see the examples. 
+
+
+== Near future plans
+
+== Changelog
+
+=== v0.1.0
+
+* first version, supporting output only
+
+
+== Copyright
+
+Copyright (c) 2009 Tobias Bielohlawek, {heavily based on ruby launchpad gem}[http://github.com/thomasjachmann/launchpad] by Thomas Jachmann. See LICENSE for details.
