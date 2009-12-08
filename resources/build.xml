@@ -61,8 +61,8 @@
 	
 <!-- #### (14) where can the source code be found? edit value. #### -->
 	<property name="source:host"  value="github" />
-	<property name="source:url"  value="" />
-	<property name="source:repository"  value="" />
+	<property name="source:url"  value="http://github.com/" />
+	<property name="source:repository"  value="http://github.com/rngtng/launchpad" />
 
 
 
