@@ -21,6 +21,8 @@ Boston, MA  02111-1307  USA
 
 package com.rngtng.launchpad;
 
+import javax.sound.midi.MidiMessage;
+
 import processing.core.PApplet;
 import processing.core.PImage;
 import themidibus.*;
@@ -53,7 +55,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	 * initialize and start the library.
 	 *
 	 * @example Launchpad
-	 * @param theParent
+	 * @param _app parent Applet
 	 * @param inputName name of MIDI input Device
 	 * @param outputName name of MIDI output Device
 	 */
@@ -156,7 +158,9 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	 * Changes a single Control or Scene Button. Specify the Button by its name
 	 *
 	 * @param buttonCode Code of the button
-	 * @param c     LColor object
+	 * @param red   brightness of red LED
+	 * @param green brightness of green LED
+     * @param mode brightness of green LED 
 	 *
 	 * Errors raised:
 	 * [Launchpad::NoValidGridCoordinatesError] when coordinates aren't within the valid range
@@ -165,7 +169,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	 */
 	public void changeButton(byte buttonCode, byte red, byte green, byte mode) {
 	    //if(!isButtonCode(buttonCode)) throw
-		int status = (isSceneButtonCode(buttonCode) ? STATUS_ON : STATUS_CC;
+		int status = (isSceneButtonCode(buttonCode)) ? STATUS_ON : STATUS_CC;
 		output(status, buttonCode, LColor.velocity(red, green, mode));
 	}
 
@@ -174,16 +178,14 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	 *
 	 * @param x     x coordinate
 	 * @param y     y coordinate
-	 * @param red   brightness of red LED
-	 * @param green brightness of green LED
-	 * @param mode  button mode
+	 * @param c     LColor object
      *
 	 * Errors raised:
 	 * [Launchpad::NoValidGridCoordinatesError] when coordinates aren't within the valid range
 	 * [Launchpad::NoValidBrightnessError] when brightness values aren't within the valid range
 	 * [Launchpad::NoOutputAllowedError] when output is not enabled
 	 */
-	public void changeGrid(int x, int y, Color c) {
+	public void changeGrid(int x, int y, LColor c) {
 		changeGrid(x, y, c.red, c.green, c.mode);
 	}
 
@@ -228,14 +230,14 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	 * values will be filled with 0
 	 *
 	 * @param colors an array of Colors
-	 * @see Color
+	 * @see LColor
 	 *
 	 * Errors raised:
 	 *
 	 * [Launchpad::NoValidBrightnessError] when brightness values aren't within the valid range
 	 * [Launchpad::NoOutputAllowedError] when output is not enabled
 	 */
-	public void change_all(Color[] colors) {
+	public void change_all(LColor[] colors) {
 		byte param1, param2;
 
 		// send normal MIDI message to reset rapid LED change pointer
@@ -411,6 +413,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
     	app.println("Status Byte/MIDI Command:"+message.getStatus());
     	if(message.getMessage().length > 1) app.println("Param 1: "+(int)(message.getMessage()[1] & 0xFF));
     	if(message.getMessage().length > 2) app.println("Param 2: "+(int)(message.getMessage()[2] & 0xFF));
+    	read_pending_actions(message);
     }
 
     /**
@@ -429,26 +432,18 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
     * Errors raised:
     * [Launchpad::NoInputAllowedError] when input is not enabled
     */
-    private void read_pending_actions(MidiMessage midi_message) {
-        int code     = message.getStatus();
-        int note     = message.getMessage()[1] & 0xFF;
-        int velocity = message.getMessage()[2] & 0xFF;
+    private void read_pending_actions(MidiMessage message) {
+    	byte code     = (byte) message.getStatus();
+        byte note     = (byte) (message.getMessage()[1] & 0xFF);
+        byte velocity = (byte) (message.getMessage()[2] & 0xFF);
 
-        if( status == Status::ON ) {
-            r = (velocity == 127) ? GridDownEvent(note % 16, note / 16) : GridUpEvent(note % 16, note / 16);
+        if( code == STATUS_ON ) {
+            //r = (velocity == 127) ? GridDownEvent(note % 16, note / 16) : GridUpEvent(note % 16, note / 16);
         }
-        if( status == Status::CC || (status == Status::ON && isSceneButtonCode(note)) ) {
-            r = (velocity == 127) ? ButtonDownEvent(note) : ButtonUpEvent(note);
+        if( code == STATUS_CC || (code == STATUS_ON && isSceneButtonCode(note)) ) {
+           // r = (velocity == 127) ? ButtonDownEvent(note) : ButtonUpEvent(note);
         }
     }
-
-	/** Writes a messages to the MIDI device.
-	 *
-     */
-	private void output(int status, byte data1, byte data2) {
-		//raise NoOutputAllowedError if @output.nil?
-		midiBus.sendMessage(new byte[]{(byte) status, data1, data2});
-	}
 
 	/** Writes a messages to the MIDI device.
 	 *
@@ -493,4 +488,5 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 		if(buttonCode == BUTTON_SCENE8) return true;
 		return false;
 	}
+
 }
