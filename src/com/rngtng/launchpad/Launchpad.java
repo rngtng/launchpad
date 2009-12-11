@@ -44,7 +44,13 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	public static int width = 8;
 	public static int height = width;
 
-	public final String VERSION = "0.1";
+	public final String VERSION = "0.2";
+
+	private Method buttonPressedMethod;
+	private Method buttonReleasedMethod;
+	private Method gridPressedMethod;
+	private Method gridReleasedMethod;
+
 
 	public Launchpad(PApplet _app) {
 		this(_app, "Launchpad", "Launchpad");
@@ -64,8 +70,35 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 		app.registerDispose(this);
 		midiBus = new MidiBus(_app, inputName, outputName);
 		midiBus.addMidiListener(this);
+		getMethods(_app);
 	}
 
+	protected void getMethods(Object parent) {
+		Class[] argsGrid = new Class[] {int.class, int.class};
+		try {
+			gridPressedMethod = parent.getClass().getDeclaredMethod( "launchpadGridPressed", argsGrid);
+		} catch (NoSuchMethodException e) {
+			// not a big deal if they aren't implemented
+		}
+		try {
+			gridReleasedMethod = parent.getClass().getDeclaredMethod( "launchpadGridReleased", argsGrid);
+		} catch (NoSuchMethodException e) {
+			// not a big deal if they aren't implemented
+		}
+		
+		Class[] argsButton = new Class[] { int.class};
+		try {
+			buttonPressedMethod = parent.getClass().getDeclaredMethod( "launchpadButtonPressed", argsButton);
+		} catch (NoSuchMethodException e) {
+			// not a big deal if they aren't implemented
+		}
+		try {
+			buttonReleasedMethod = parent.getClass().getDeclaredMethod( "launchpadButtonReleased", argsButton);
+		} catch (NoSuchMethodException e) {
+			// not a big deal if they aren't implemented
+		}
+	}
+	
 	public void dispose() {
 		midiBus.close();
 	}
@@ -114,7 +147,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	 *
 	 * [Launchpad::NoOutputAllowedError] when output is not enabled
 	 */
-	public void test_leds(byte brightness) {
+	public void test_leds(int brightness) {
 		if(brightness == 0) {
 			reset();
 		}
@@ -134,7 +167,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	 * [Launchpad::NoValidBrightnessError] when brightness values aren't within the valid range
 	 * [Launchpad::NoOutputAllowedError] when output is not enabled
 	 */
-	public void changeButton(byte buttonCode, LColor c) {
+	public void changeButton(int buttonCode, LColor c) {
 		changeButton(buttonCode, c.red, c.green, c.mode);
 	}
 
@@ -150,7 +183,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	 * [Launchpad::NoValidBrightnessError] when brightness values aren't within the valid range
 	 * [Launchpad::NoOutputAllowedError] when output is not enabled
 	 */
-	public void changeButton(byte buttonCode, byte red, byte green) {
+	public void changeButton(int buttonCode, int red, int green) {
 		changeButton(buttonCode, red, green, LColor.NORMAL);
 	}
 
@@ -167,7 +200,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	 * [Launchpad::NoValidBrightnessError] when brightness values aren't within the valid range
 	 * [Launchpad::NoOutputAllowedError] when output is not enabled
 	 */
-	public void changeButton(byte buttonCode, byte red, byte green, byte mode) {
+	public void changeButton(int buttonCode, int red, int green, int mode) {
 	    //if(!isButtonCode(buttonCode)) throw
 		int status = (isSceneButtonCode(buttonCode)) ? STATUS_ON : STATUS_CC;
 		output(status, buttonCode, LColor.velocity(red, green, mode));
@@ -202,7 +235,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	 * [Launchpad::NoValidBrightnessError] when brightness values aren't within the valid range
 	 * [Launchpad::NoOutputAllowedError] when output is not enabled
 	 */
-	public void changeGrid(int x, int y, byte red, byte green) {
+	public void changeGrid(int x, int y, int red, int green) {
 		changeGrid(x, y, red, green, LColor.NORMAL);
 	}
 
@@ -220,7 +253,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	 * [Launchpad::NoValidBrightnessError] when brightness values aren't within the valid range
 	 * [Launchpad::NoOutputAllowedError] when output is not enabled
 	 */
-	public void changeGrid(int x, int y, byte red, byte green, byte mode) {
+	public void changeGrid(int x, int y, int red, int green, int mode) {
 		output(STATUS_ON, (y * 16 + x), LColor.velocity(red, green, mode));
 	}
 
@@ -238,7 +271,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	 * [Launchpad::NoOutputAllowedError] when output is not enabled
 	 */
 	public void change_all(LColor[] colors) {
-		byte param1, param2;
+		int param1, param2;
 
 		// send normal MIDI message to reset rapid LED change pointer
 		//  in this case, set mapping mode to x-y layout (the default)
@@ -270,14 +303,14 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	 * followed by  the control buttons (left to right). Maximum 80 values - excessive values will be ignored, missing
 	 * values will be filled with 0
 	 *
-	 * @param colors an array of bytes
+	 * @param colors an array of integers
 	 *
 	 * Errors raised:
 	 * [Launchpad::NoValidBrightnessError] when brightness values aren't within the valid range
 	 * [Launchpad::NoOutputAllowedError] when output is not enabled
 	 */
-	public void change_all(byte[] colors) {
-		byte param1, param2;
+	public void change_all(int[] colors) {
+		int param1, param2;
 
 		// send normal MIDI message to reset rapid LED change pointer
 		//  in this case, set mapping mode to x-y layout (the default)
@@ -315,7 +348,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	 * [Launchpad::NoOutputAllowedError] when output is not enabled
 	 */
 	public void change_all(PImage image) {
-		byte param1, param2;
+		int param1, param2;
 
 		// send normal MIDI message to reset rapid LED change pointer
 		//  in this case, set mapping mode to x-y layout (the default)
@@ -325,7 +358,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 		//  send colors in slices of 2
 		for(int i = 0; i < 80; i = i + 2) {
 			try {
-				param1 = (byte) (4 * app.red(image.pixels[i]) / 255);
+				param1 = 4 * app.red(image.pixels[i]) / 255;
 			} catch (ArrayIndexOutOfBoundsException e) {
 				param1 = 0;
 			} catch (NullPointerException e) {
@@ -333,7 +366,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 			}
 
 			try {
-				param2 = (byte) (4 * app.green(image.pixels[i+1]) / 255);
+				param2 = 4 * app.green(image.pixels[i+1]) / 255;
 			} catch (ArrayIndexOutOfBoundsException e) {
 				param2 = 0;
 			} catch (NullPointerException e) {
@@ -396,72 +429,70 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	 * [Launchpad::NoOutputAllowedError] when output is not enabled
 	 */
 	public void buffering_mode(int display_buffer, int update_buffer, boolean copy, boolean flashing) {
-		byte data = (byte) (display_buffer + 4 * update_buffer + 32);
+		int data = display_buffer + 4 * update_buffer + 32;
 		if(copy) data += 16;
 		if(flashing) data += 8;
 		output(STATUS_CC, STATUS_NIL, data);
 	}
 
-
-    public void midiMessage(MidiMessage message) { // You can also use midiMessage(MidiMessage message, String bus_name)
-    	// Receive a MidiMessage
-    	// MidiMessage is an abstract class, the actual passed object will be either javax.sound.midi.MetaMessage, javax.sound.midi.ShortMessage, javax.sound.midi.SysexMessage.
-    	// Check it out here http://java.sun.com/j2se/1.5.0/docs/api/javax/sound/midi/package-summary.html
-    	/*PApplet.println();
-    	PApplet.println("MidiMessage Data:");
-    	PApplet.println("--------");
-    	PApplet.println("Status Byte/MIDI Command:"+message.getStatus());
-    	if(message.getMessage().length > 1) PApplet.println("Param 1: "+(int)(message.getMessage()[1] & 0xFF));
-    	if(message.getMessage().length > 2) PApplet.println("Param 2: "+(int)(message.getMessage()[2] & 0xFF)); */
-    	read_pending_actions(message);
-    }
-
     /**
-    * Reads user actions (button presses/releases) that haven't been handled yet.
+    * Reads user actions (button presses/releases) that haven't been handled yet and invokes a button
+    * or grid event
     *
-    * Returns:
+    * @param message the MIDI message
     *
-    * an array of hashes with (see Launchpad for values):
-    *
-    * [<tt>:timestamp</tt>] integer indicating the time when the action occured
-    * [<tt>:state</tt>]     state of the button after action
-    * [<tt>:type</tt>]      type of the button
-    * [<tt>:x</tt>]         x coordinate
-    * [<tt>:y</tt>]         y coordinate
+    * @todo custom/multiple listener??
     *
     * Errors raised:
     * [Launchpad::NoInputAllowedError] when input is not enabled
     */
-    private void read_pending_actions(MidiMessage message) {  
+    public void midiMessage(MidiMessage message) {
     	int code     = message.getStatus();
     	int note     = message.getMessage()[1] & 0xFF;
     	int velocity = message.getMessage()[2] & 0xFF;
-        String st = (velocity == 127) ? "Down" : "Up";
-        
-        if((code == STATUS_ON || code == STATUS_OFF) && isSceneButtonCode(note)) {
-            PApplet.println("Scene Button " + st);
-            return;
-            // r = (velocity == 127) ? ButtonDownEvent(note) : ButtonUpEvent(note);
-         }        
-        if( code == STATUS_ON || code == STATUS_OFF) {
-        	PApplet.println("x:" + (note % 16) + " y:" + (note / 16) + " " +st); 
+    	
+    	//process button event
+    	Method m = (velocity == 127) ? buttonPressedMethod : buttonReleasedMethod;        
+        if(code == STATUS_CC || (code == STATUS_ON || code == STATUS_OFF) && isSceneButtonCode(note)) {
+            if (m == null) return;
+            try {
+    			m.invoke(app, new int[]{ note }); // param is: buttonCode
+    		} catch (IllegalArgumentException e) {
+    			e.printStackTrace();
+    		} catch (IllegalAccessException e) {
+    			e.printStackTrace();
+    		} catch (InvocationTargetException e) {
+    			e.printStackTrace();
+    		}            
+        	PApplet.println("Button :" + note); 
         	return;
-            //r = (velocity == 127) ? GridDownEvent(note % 16, note / 16) : GridUpEvent(note % 16, note / 16);
-        }
-        if( code == STATUS_CC ) {
-          PApplet.println("Mode Button " + st);
-          return;
-           // r = (velocity == 127) ? ButtonDownEvent(note) : ButtonUpEvent(note);
-        }
+         }        
 
+    	//process grid event        
+        Method m = (velocity == 127) ? gridPressedMethod : gridReleasedMethod;          
+        if( code == STATUS_ON || code == STATUS_OFF) {
+            if (m == null) return;
+            try {
+    			m.invoke(app, new int[]{ (note % 16), (note / 16) }); // params are: x, y
+    		} catch (IllegalArgumentException e) {
+    			e.printStackTrace();
+    		} catch (IllegalAccessException e) {
+    			e.printStackTrace();
+    		} catch (InvocationTargetException e) {
+    			e.printStackTrace();
+    		}            
+        	PApplet.println("x:" + (note % 16) + " y:" + (note / 16)); 
+        	return;
+        }
         
-        PApplet.println("Status Byte/MIDI Command:"+message.getStatus());
-    	if(message.getMessage().length > 1) PApplet.println("Param 1: "+(int)(message.getMessage()[1] & 0xFF));
-    	if(message.getMessage().length > 2) PApplet.println("Param 2: "+(int)(message.getMessage()[2] & 0xFF));
-        
+        PApplet.print("Huston we've an unimplemented MIDI Message: " + message.getStatus());
+    	if(message.getMessage().length > 1) PApplet.print(" Param 1: " + (message.getMessage()[1] & 0xFF) );
+    	if(message.getMessage().length > 2) PApplet.print(" Param 2: " + (message.getMessage()[2] & 0xFF) );
+    	PApplet.println();
     }
 
-	/** Writes a messages to the MIDI device.
+	/** 
+	 * Writes a messages to the MIDI device.
 	 *
      */
 	private void output(int status, int data1, int data2) {
