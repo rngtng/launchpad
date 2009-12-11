@@ -17,7 +17,8 @@
 		<fileset dir="${libraryClasspath}" >		
 <!-- #### (3) add the jar files that are required for compiling. edit name.
 		for more include files. duplicate <include name="" /> #### -->
-			<include name="themidibus.jar"/>	
+			<include name="themidibus.jar"/>
+			<include name="monomic.jar"/>			
 			<include name="core.jar"/>			
 		</fileset>
 	</path>		
@@ -58,6 +59,7 @@
 	
 <!-- #### (13) does the library depend on any other library, dll, jnilib, etc. edit value. #### -->
 	<property name="tested:dependencies"  value="themidibus" />
+	<property name="tested:dependencies"  value="monomic" />
 	
 <!-- #### (14) where can the source code be found? edit value. #### -->
 	<property name="source:host"  value="github" />
@@ -146,7 +148,7 @@
 	<!-- create the java reference of the library -->
  	<mkdir dir="${reference}" />
  	<javadoc bottom="processing library ${libraryName} by ${author}. ${copyright}" 
- 			 classpath="${libraryClasspath}/core.jar:${libraryClasspath}/themidibus.jar" 
+ 			 classpath="${libraryClasspath}/core.jar:${libraryClasspath}/themidibus.jar:${libraryClasspath}/monomic.jar" 
  			 destdir="${reference}" 
  			 verbose="false" 
  			 stylesheetfile="resources/stylesheet.css" 
