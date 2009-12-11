@@ -1,5 +1,5 @@
 /*
-
+A nice wrapper class to controll the novation launchpad 
 
 (c) copyright 2009 by rngtng - Tobias Bielohlawek
 
@@ -21,11 +21,14 @@ Boston, MA  02111-1307  USA
 
 package com.rngtng.launchpad;
 
+import java.util.Vector;
+
 import javax.sound.midi.MidiMessage;
 
 import processing.core.PApplet;
 import processing.core.PImage;
-import themidibus.*;
+import themidibus.MidiBus;
+import themidibus.StandardMidiListener;
 
 /**
  * this is a template class and can be used to start a new processing library.
@@ -46,11 +49,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 
 	public final String VERSION = "0.2";
 
-	private Method buttonPressedMethod;
-	private Method buttonReleasedMethod;
-	private Method gridPressedMethod;
-	private Method gridReleasedMethod;
-
+	Vector<LaunchpadListener> listeners;
 
 	public Launchpad(PApplet _app) {
 		this(_app, "Launchpad", "Launchpad");
@@ -70,35 +69,11 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 		app.registerDispose(this);
 		midiBus = new MidiBus(_app, inputName, outputName);
 		midiBus.addMidiListener(this);
-		getMethods(_app);
+
+		listeners = new Vector<LaunchpadListener>();
+		addListener(new LaunchadPAppletListener(_app));		
 	}
 
-	protected void getMethods(Object parent) {
-		Class[] argsGrid = new Class[] {int.class, int.class};
-		try {
-			gridPressedMethod = parent.getClass().getDeclaredMethod( "launchpadGridPressed", argsGrid);
-		} catch (NoSuchMethodException e) {
-			// not a big deal if they aren't implemented
-		}
-		try {
-			gridReleasedMethod = parent.getClass().getDeclaredMethod( "launchpadGridReleased", argsGrid);
-		} catch (NoSuchMethodException e) {
-			// not a big deal if they aren't implemented
-		}
-		
-		Class[] argsButton = new Class[] { int.class};
-		try {
-			buttonPressedMethod = parent.getClass().getDeclaredMethod( "launchpadButtonPressed", argsButton);
-		} catch (NoSuchMethodException e) {
-			// not a big deal if they aren't implemented
-		}
-		try {
-			buttonReleasedMethod = parent.getClass().getDeclaredMethod( "launchpadButtonReleased", argsButton);
-		} catch (NoSuchMethodException e) {
-			// not a big deal if they aren't implemented
-		}
-	}
-	
 	public void dispose() {
 		midiBus.close();
 	}
@@ -111,6 +86,38 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	public String version() {
 		return VERSION;
 	}
+
+	/* -- Listener Handling -- */
+
+	/**
+	 * 	Adds a listener who will be notified each time a new MIDI message is received from a MIDI input device. If the listener has already been added, it will not be added again.
+	 *
+	 * @param listener the listener to add.
+	 * @return true if and only the listener was sucessfully added.
+	 * @see #removeListener(LaunchpadListener listener)
+	 */
+	public boolean addListener(LaunchpadListener listener) {
+		for(LaunchpadListener current : listeners) if(current == listener) return false;	
+		listeners.add(listener);				
+		return true;
+	}
+
+	/**
+	 * Removes a given listener.
+	 *
+	 * @param listener the listener to remove.
+	 * @return true if and only the listener was sucessfully removed.
+	 * @see #addListener(LaunchpadListener listener)
+	 */
+	public boolean removeListener(LaunchpadListener listener) {
+		for(LaunchpadListener current : listeners) {
+			if(current == listener) {
+				listeners.remove(listener);
+				return true;
+			}
+		}
+		return false;
+	}	
 
 	/**
 	 * Resets the launchpad - all settings are reset and all LEDs are switched off.
@@ -132,8 +139,8 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	 *
 	 * [Launchpad::NoOutputAllowedError] when output is not enabled
 	 */
-	public void test_leds() {
-		test_leds(LColor.HIGH);
+	public void testLeds() {
+		testLeds(LColor.HIGH);
 	}
 
 	/**
@@ -147,7 +154,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	 *
 	 * [Launchpad::NoOutputAllowedError] when output is not enabled
 	 */
-	public void test_leds(int brightness) {
+	public void testLeds(int brightness) {
 		if(brightness == 0) {
 			reset();
 		}
@@ -193,7 +200,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	 * @param buttonCode Code of the button
 	 * @param red   brightness of red LED
 	 * @param green brightness of green LED
-     * @param mode brightness of green LED 
+	 * @param mode brightness of green LED 
 	 *
 	 * Errors raised:
 	 * [Launchpad::NoValidGridCoordinatesError] when coordinates aren't within the valid range
@@ -201,7 +208,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	 * [Launchpad::NoOutputAllowedError] when output is not enabled
 	 */
 	public void changeButton(int buttonCode, int red, int green, int mode) {
-	    //if(!isButtonCode(buttonCode)) throw
+		//if(!isButtonCode(buttonCode)) throw
 		int status = (isSceneButtonCode(buttonCode)) ? STATUS_ON : STATUS_CC;
 		output(status, buttonCode, LColor.velocity(red, green, mode));
 	}
@@ -212,7 +219,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	 * @param x     x coordinate
 	 * @param y     y coordinate
 	 * @param c     LColor object
-     *
+	 *
 	 * Errors raised:
 	 * [Launchpad::NoValidGridCoordinatesError] when coordinates aren't within the valid range
 	 * [Launchpad::NoValidBrightnessError] when brightness values aren't within the valid range
@@ -358,7 +365,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 		//  send colors in slices of 2
 		for(int i = 0; i < 80; i = i + 2) {
 			try {
-				param1 = 4 * app.red(image.pixels[i]) / 255;
+				param1 = (int) (4 * app.red(image.pixels[i]) / 255);
 			} catch (ArrayIndexOutOfBoundsException e) {
 				param1 = 0;
 			} catch (NullPointerException e) {
@@ -366,7 +373,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 			}
 
 			try {
-				param2 = 4 * app.green(image.pixels[i+1]) / 255;
+				param2 = (int) (4 * app.green(image.pixels[i+1]) / 255);
 			} catch (ArrayIndexOutOfBoundsException e) {
 				param2 = 0;
 			} catch (NullPointerException e) {
@@ -435,66 +442,58 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 		output(STATUS_CC, STATUS_NIL, data);
 	}
 
-    /**
-    * Reads user actions (button presses/releases) that haven't been handled yet and invokes a button
-    * or grid event
-    *
-    * @param message the MIDI message
-    *
-    * @todo custom/multiple listener??
-    *
-    * Errors raised:
-    * [Launchpad::NoInputAllowedError] when input is not enabled
-    */
-    public void midiMessage(MidiMessage message) {
-    	int code     = message.getStatus();
-    	int note     = message.getMessage()[1] & 0xFF;
-    	int velocity = message.getMessage()[2] & 0xFF;
-    	
-    	//process button event
-    	Method m = (velocity == 127) ? buttonPressedMethod : buttonReleasedMethod;        
-        if(code == STATUS_CC || (code == STATUS_ON || code == STATUS_OFF) && isSceneButtonCode(note)) {
-            if (m == null) return;
-            try {
-    			m.invoke(app, new int[]{ note }); // param is: buttonCode
-    		} catch (IllegalArgumentException e) {
-    			e.printStackTrace();
-    		} catch (IllegalAccessException e) {
-    			e.printStackTrace();
-    		} catch (InvocationTargetException e) {
-    			e.printStackTrace();
-    		}            
-        	PApplet.println("Button :" + note); 
-        	return;
-         }        
+	/**
+	 * Reads user actions (button presses/releases) that haven't been handled yet and invokes a button
+	 * or grid event
+	 *
+	 * @param message the MIDI message
+	 *
+	 * Errors raised:
+	 * [Launchpad::NoInputAllowedError] when input is not enabled
+	 */
+	public void midiMessage(MidiMessage message) {
+		int code     = message.getStatus();
+		int note     = message.getMessage()[1] & 0xFF;
+		int velocity = message.getMessage()[2] & 0xFF;
 
-    	//process grid event        
-        Method m = (velocity == 127) ? gridPressedMethod : gridReleasedMethod;          
-        if( code == STATUS_ON || code == STATUS_OFF) {
-            if (m == null) return;
-            try {
-    			m.invoke(app, new int[]{ (note % 16), (note / 16) }); // params are: x, y
-    		} catch (IllegalArgumentException e) {
-    			e.printStackTrace();
-    		} catch (IllegalAccessException e) {
-    			e.printStackTrace();
-    		} catch (InvocationTargetException e) {
-    			e.printStackTrace();
-    		}            
-        	PApplet.println("x:" + (note % 16) + " y:" + (note / 16)); 
-        	return;
-        }
-        
-        PApplet.print("Huston we've an unimplemented MIDI Message: " + message.getStatus());
-    	if(message.getMessage().length > 1) PApplet.print(" Param 1: " + (message.getMessage()[1] & 0xFF) );
-    	if(message.getMessage().length > 2) PApplet.print(" Param 2: " + (message.getMessage()[2] & 0xFF) );
-    	PApplet.println();
-    }
+		//process button event	
+		if(code == STATUS_CC || (code == STATUS_ON || code == STATUS_OFF) && isSceneButtonCode(note)) {
+			for(LaunchpadListener listener : listeners) {				
+				if(velocity == 127) { 
+					listener.launchpadButtonPressed(note);
+				}
+				else {
+					listener.launchpadButtonReleased(note);			
+				}					
+			}			
+			PApplet.println("Button :" + note); 
+			return;
+		}        
+
+		//process grid event        
+		if( code == STATUS_ON || code == STATUS_OFF) {
+			for(LaunchpadListener listener : listeners) {				
+				if(velocity == 127) { 
+					listener.launchpadGridPressed(note % 16, note / 16);
+				}
+				else {
+					listener.launchpadGridReleased(note % 16, note / 16);			
+				}					
+			}
+			PApplet.println("x:" + (note % 16) + " y:" + (note / 16)); 
+			return;
+		}
+
+		PApplet.print("Huston we've an unimplemented MIDI Message: " + message.getStatus());
+		if(message.getMessage().length > 1) PApplet.print(" Param 1: " + (message.getMessage()[1] & 0xFF) );
+		if(message.getMessage().length > 2) PApplet.print(" Param 2: " + (message.getMessage()[2] & 0xFF) );
+		PApplet.println();
+	}
 
 	/** 
 	 * Writes a messages to the MIDI device.
 	 *
-     */
+	 */
 	private void output(int status, int data1, int data2) {
 		//raise NoOutputAllowedError if @output.nil?
 		midiBus.sendMessage(new byte[]{ (byte) status, (byte) data1, (byte) data2});
@@ -504,7 +503,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	 *  checks for valid button code
 	 *
 	 *  @param buttonCode code of the button
-	 *  @return boolean wether code is valid
+	 *  @return boolean if code is valid
 	 */
 	private boolean isButtonCode(int buttonCode) {
 		if(buttonCode == BUTTON_UP)      return true;
