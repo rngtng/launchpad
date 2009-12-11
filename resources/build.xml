@@ -1,4 +1,4 @@
-<project name="processingLibs" default="build" basedir="../">
+<project name="launchpad" default="build" basedir="../">
     
 	<description>
         processingLibs. ant build file.

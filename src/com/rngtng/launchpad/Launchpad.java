@@ -47,7 +47,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	public final String VERSION = "0.1";
 
 	public Launchpad(PApplet _app) {
-		this(_app, "Launchpad - Launchpad", "Launchpad - Launchpad");
+		this(_app, "Launchpad", "Launchpad");
 	}
 
 	/**
@@ -407,12 +407,12 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
     	// Receive a MidiMessage
     	// MidiMessage is an abstract class, the actual passed object will be either javax.sound.midi.MetaMessage, javax.sound.midi.ShortMessage, javax.sound.midi.SysexMessage.
     	// Check it out here http://java.sun.com/j2se/1.5.0/docs/api/javax/sound/midi/package-summary.html
-    	app.println();
-    	app.println("MidiMessage Data:");
-    	app.println("--------");
-    	app.println("Status Byte/MIDI Command:"+message.getStatus());
-    	if(message.getMessage().length > 1) app.println("Param 1: "+(int)(message.getMessage()[1] & 0xFF));
-    	if(message.getMessage().length > 2) app.println("Param 2: "+(int)(message.getMessage()[2] & 0xFF));
+    	/*PApplet.println();
+    	PApplet.println("MidiMessage Data:");
+    	PApplet.println("--------");
+    	PApplet.println("Status Byte/MIDI Command:"+message.getStatus());
+    	if(message.getMessage().length > 1) PApplet.println("Param 1: "+(int)(message.getMessage()[1] & 0xFF));
+    	if(message.getMessage().length > 2) PApplet.println("Param 2: "+(int)(message.getMessage()[2] & 0xFF)); */
     	read_pending_actions(message);
     }
 
@@ -432,17 +432,33 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
     * Errors raised:
     * [Launchpad::NoInputAllowedError] when input is not enabled
     */
-    private void read_pending_actions(MidiMessage message) {
-    	byte code     = (byte) message.getStatus();
-        byte note     = (byte) (message.getMessage()[1] & 0xFF);
-        byte velocity = (byte) (message.getMessage()[2] & 0xFF);
-
-        if( code == STATUS_ON ) {
+    private void read_pending_actions(MidiMessage message) {  
+    	int code     = message.getStatus();
+    	int note     = message.getMessage()[1] & 0xFF;
+    	int velocity = message.getMessage()[2] & 0xFF;
+        String st = (velocity == 127) ? "Down" : "Up";
+        
+        if((code == STATUS_ON || code == STATUS_OFF) && isSceneButtonCode(note)) {
+            PApplet.println("Scene Button " + st);
+            return;
+            // r = (velocity == 127) ? ButtonDownEvent(note) : ButtonUpEvent(note);
+         }        
+        if( code == STATUS_ON || code == STATUS_OFF) {
+        	PApplet.println("x:" + (note % 16) + " y:" + (note / 16) + " " +st); 
+        	return;
             //r = (velocity == 127) ? GridDownEvent(note % 16, note / 16) : GridUpEvent(note % 16, note / 16);
         }
-        if( code == STATUS_CC || (code == STATUS_ON && isSceneButtonCode(note)) ) {
+        if( code == STATUS_CC ) {
+          PApplet.println("Mode Button " + st);
+          return;
            // r = (velocity == 127) ? ButtonDownEvent(note) : ButtonUpEvent(note);
         }
+
+        
+        PApplet.println("Status Byte/MIDI Command:"+message.getStatus());
+    	if(message.getMessage().length > 1) PApplet.println("Param 1: "+(int)(message.getMessage()[1] & 0xFF));
+    	if(message.getMessage().length > 2) PApplet.println("Param 2: "+(int)(message.getMessage()[2] & 0xFF));
+        
     }
 
 	/** Writes a messages to the MIDI device.
@@ -459,7 +475,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	 *  @param buttonCode code of the button
 	 *  @return boolean wether code is valid
 	 */
-	private boolean isButtonCode(byte buttonCode) {
+	private boolean isButtonCode(int buttonCode) {
 		if(buttonCode == BUTTON_UP)      return true;
 		if(buttonCode == BUTTON_DOWN)    return true;
 		if(buttonCode == BUTTON_LEFT)    return true;
@@ -477,7 +493,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	 *  @param buttonCode code of the button
 	 *  @return boolean wether code is as scene button
 	 */
-	private boolean isSceneButtonCode(byte buttonCode) {
+	private boolean isSceneButtonCode(int buttonCode) {
 		if(buttonCode == BUTTON_SCENE1) return true;
 		if(buttonCode == BUTTON_SCENE2) return true;
 		if(buttonCode == BUTTON_SCENE3) return true;
