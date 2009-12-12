@@ -43,7 +43,7 @@
 	<property name="libraryName"  value="launchpad"/>
 	
 <!-- #### (8) give your library a name. edit value.   #### -->
-	<property name="versionNumber"  value="0.1"/>
+	<property name="versionNumber"  value="0.2"/>
 	
 <!-- #### (9) your contact url. edit value. #### -->
 	<property name="yourLink"  value="http://www.rngtng.com/launchpad" />

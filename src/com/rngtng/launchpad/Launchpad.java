@@ -75,6 +75,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	}
 
 	public void dispose() {
+		reset();
 		midiBus.close();
 	}
 
@@ -93,7 +94,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	 * 	Adds a listener who will be notified each time a new MIDI message is received from a MIDI input device. If the listener has already been added, it will not be added again.
 	 *
 	 * @param listener the listener to add.
-	 * @return true if and only the listener was sucessfully added.
+	 * @return true if and only the listener was successfully added.
 	 * @see #removeListener(LaunchpadListener listener)
 	 */
 	public boolean addListener(LaunchpadListener listener) {
@@ -106,7 +107,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	 * Removes a given listener.
 	 *
 	 * @param listener the listener to remove.
-	 * @return true if and only the listener was sucessfully removed.
+	 * @return true if and only the listener was successfully removed.
 	 * @see #addListener(LaunchpadListener listener)
 	 */
 	public boolean removeListener(LaunchpadListener listener) {
@@ -466,7 +467,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 					listener.launchpadButtonReleased(note);			
 				}					
 			}			
-			PApplet.println("Button :" + note); 
+			//PApplet.println("Button :" + note); 
 			return;
 		}        
 
@@ -480,7 +481,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 					listener.launchpadGridReleased(note % 16, note / 16);			
 				}					
 			}
-			PApplet.println("x:" + (note % 16) + " y:" + (note / 16)); 
+			//PApplet.println("x:" + (note % 16) + " y:" + (note / 16)); 
 			return;
 		}
 

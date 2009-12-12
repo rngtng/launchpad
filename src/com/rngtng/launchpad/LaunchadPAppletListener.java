@@ -37,6 +37,7 @@ public class LaunchadPAppletListener implements LaunchpadListener {
 
 	LaunchadPAppletListener(PApplet _app) {
 		app = _app;
+		getMethods(app);
 	}
 
 	protected void getMethods(Object parent) {
@@ -68,7 +69,7 @@ public class LaunchadPAppletListener implements LaunchpadListener {
 	public void launchpadButtonPressed(int buttonCode) {
 		if (buttonPressedMethod == null) return;			
 		try {
-			buttonPressedMethod.invoke(app, new int[]{ buttonCode }); // param is: buttonCode
+			buttonPressedMethod.invoke(app, new Object[]{ buttonCode }); // param is: buttonCode
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
@@ -81,7 +82,7 @@ public class LaunchadPAppletListener implements LaunchpadListener {
 	public void launchpadButtonReleased(int buttonCode) {
 		if (buttonReleasedMethod == null) return;			
 		try {
-			buttonReleasedMethod.invoke(app, new int[]{ buttonCode }); // param is: buttonCode
+			buttonReleasedMethod.invoke(app, new Object[]{ buttonCode }); // param is: buttonCode
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
@@ -91,10 +92,10 @@ public class LaunchadPAppletListener implements LaunchpadListener {
 		}  		
 	}
 
-	public void launchpadGridPressed(int x, int y) {
+	public void launchpadGridPressed(int x, int y) {		
 		if(gridPressedMethod == null) return;
 		try {
-			gridPressedMethod.invoke(app, new int[]{x, y}); // params are: x, y
+			gridPressedMethod.invoke(app, new Object[]{x, y}); // params are: x, y
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
@@ -107,7 +108,7 @@ public class LaunchadPAppletListener implements LaunchpadListener {
 	public void launchpadGridReleased(int x, int y) {
 		if(gridReleasedMethod == null) return;
 		try {
-			gridReleasedMethod.invoke(app, new int[]{x, y}); // params are: x, y
+			gridReleasedMethod.invoke(app, new Object[]{x, y}); // params are: x, y
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
