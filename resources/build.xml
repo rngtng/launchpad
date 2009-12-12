@@ -6,7 +6,7 @@
 
 	
 <!-- #### (1) where are your processing libraries located? edit location. #### -->
-	<property name="processing" location="../../Processing/libraries"/>
+	<property name="processing" location="../../arduino/libraries"/>
 
 
 <!-- #### (2) where are the jar files located that are required for compiling 

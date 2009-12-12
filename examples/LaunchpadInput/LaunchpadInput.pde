@@ -1,3 +1,5 @@
+import themidibus.*;
+
 import com.rngtng.launchpad.*;
 
 Launchpad launchpad;

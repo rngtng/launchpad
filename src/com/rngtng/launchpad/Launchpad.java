@@ -27,8 +27,7 @@ import javax.sound.midi.MidiMessage;
 
 import processing.core.PApplet;
 import processing.core.PImage;
-import themidibus.MidiBus;
-import themidibus.StandardMidiListener;
+import themidibus.*;
 
 /**
  * this is a template class and can be used to start a new processing library.

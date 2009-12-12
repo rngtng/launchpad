@@ -12,7 +12,7 @@ void draw() {
   background(0);   
   for(int y = 0; y < launchpad.height; y++) {
     for(int x = 0; x < launchpad.width; x++) {    
-      launchpad.changeGrid(x, y, com.rngtng.launchpad.Color.RED_HIGH, com.rngtng.launchpad.Color.GREEN_LOW);
+      launchpad.changeGrid(x, y, LColor.RED_HIGH, LColor.GREEN_LOW);
       delay(100);  
     }  
   }
