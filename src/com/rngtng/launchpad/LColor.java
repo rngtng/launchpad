@@ -25,15 +25,15 @@ public class LColor {
 	int green;
 	int mode;
 
-	LColor() {
+	public LColor() {
 		this(RED_OFF, GREEN_OFF, NORMAL);
 	}
 
-	LColor(int _red, int _green) {
+	public LColor(int _red, int _green) {
 		this(_red, _green, NORMAL);
 	}
 
-	LColor(int _red, int _green, int _mode) {
+	public LColor(int _red, int _green, int _mode) {
 		this.red = _red;
 		this.green = _green;
 		this.mode = _mode;
