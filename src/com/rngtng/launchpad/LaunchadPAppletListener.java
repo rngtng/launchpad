@@ -32,6 +32,10 @@ public class LaunchadPAppletListener implements LaunchpadListener {
 
 	private Method buttonPressedMethod;
 	private Method buttonReleasedMethod;
+	
+	private Method sceneButtonPressedMethod;
+	private Method sceneButtonReleasedMethod;
+	
 	private Method gridPressedMethod;
 	private Method gridReleasedMethod;
 
@@ -49,6 +53,17 @@ public class LaunchadPAppletListener implements LaunchpadListener {
 		}
 		try {
 			buttonReleasedMethod = parent.getClass().getDeclaredMethod( "launchpadButtonReleased", argsButton);
+		} catch (NoSuchMethodException e) {
+			// not a big deal if they aren't implemented
+		}
+		
+		try {
+			sceneButtonPressedMethod = parent.getClass().getDeclaredMethod( "launchpadSceneButtonPressed", argsButton);
+		} catch (NoSuchMethodException e) {
+			// not a big deal if they aren't implemented
+		}
+		try {
+			sceneButtonReleasedMethod = parent.getClass().getDeclaredMethod( "launchpadSceneButtonReleased", argsButton);
 		} catch (NoSuchMethodException e) {
 			// not a big deal if they aren't implemented
 		}
@@ -91,7 +106,32 @@ public class LaunchadPAppletListener implements LaunchpadListener {
 			e.printStackTrace();
 		}  		
 	}
+	
+	public void launchpadSceneButtonPressed(int buttonCode) {
+		if (sceneButtonPressedMethod == null) return;			
+		try {
+			sceneButtonPressedMethod.invoke(app, new Object[]{ buttonCode }); // param is: buttonCode
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		}   
+	}
 
+	public void launchpadSceneButtonReleased(int buttonCode) {
+		if (sceneButtonReleasedMethod == null) return;			
+		try {
+			sceneButtonReleasedMethod.invoke(app, new Object[]{ buttonCode }); // param is: buttonCode
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		}  		
+	}
 	public void launchpadGridPressed(int x, int y) {		
 		if(gridPressedMethod == null) return;
 		try {

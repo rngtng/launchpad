@@ -87,6 +87,84 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 		return VERSION;
 	}
 
+	/* static ones */
+
+	/**
+	 *  checks for valid button code
+	 *
+	 *  @param buttonCode code of the button
+	 *  @return boolean if code is valid
+	 */
+	public static boolean isButtonCode(int buttonCode) {
+		if( buttonCode == Launchpad.BUTTON_UP) return true;
+		if( buttonCode == Launchpad.BUTTON_DOWN) return true;
+		if( buttonCode == Launchpad.BUTTON_LEFT) return true;
+		if( buttonCode == Launchpad.BUTTON_RIGHT) return true;
+		if( buttonCode == Launchpad.BUTTON_SESSION) return true;
+		if( buttonCode == Launchpad.BUTTON_USER1) return true;
+		if( buttonCode == Launchpad.BUTTON_USER2) return true;
+		if( buttonCode == Launchpad.BUTTON_MIXER) return true;
+		return false;
+	}
+
+	/**
+	 *  checks for valid scene button code
+	 *
+	 *  @param buttonCode code of the button
+	 *  @return boolean whether code is as scene button
+	 */
+	public static  boolean isSceneButtonCode(int buttonCode) {
+		if( buttonCode == Launchpad.BUTTON_SCENE1) return true;
+		if( buttonCode == Launchpad.BUTTON_SCENE2) return true;
+		if( buttonCode == Launchpad.BUTTON_SCENE3) return true;
+		if( buttonCode == Launchpad.BUTTON_SCENE4) return true;
+		if( buttonCode == Launchpad.BUTTON_SCENE5) return true;
+		if( buttonCode == Launchpad.BUTTON_SCENE6) return true;
+		if( buttonCode == Launchpad.BUTTON_SCENE7) return true;
+		if( buttonCode == Launchpad.BUTTON_SCENE8) return true;
+		return false;
+	}
+
+	/**
+	 *  return button code for button number
+	 *
+	 *  @param buttonNumber code of the button
+	 *  @return button Code
+	 */
+	public static int buttonNumberToCode(int buttonNumber) {
+		return buttonNumber + 0x68;		
+	}
+
+	/**
+	 *  return button number for button code
+	 *
+	 *  @param buttonCode code of the button
+	 *  @return button number
+	 */
+	public static int buttonCodeToNumber(int buttonCode) {
+		return buttonCode - 0x68;		
+	}
+
+	/**
+	 *  return scene button Code for scene button number
+	 *
+	 *  @param buttonNumber code of the scene button
+	 *  @return scene button code
+	 */	
+	public static int sceneButtonNumberToCode(int buttonNumber) {
+		return (buttonNumber * 16) - 8;		
+	}
+
+	/**
+	 *  return scene button number for scene button code
+	 *
+	 *  @param buttonCode code of the scene button
+	 *  @return scene button number
+	 */	
+	public static int sceneButtonCodeToNumber(int buttonCode) {
+		return (buttonCode + 8) / 16;		
+	}	
+
 	/* -- Listener Handling -- */
 
 	/**
@@ -208,9 +286,59 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	 * [Launchpad::NoOutputAllowedError] when output is not enabled
 	 */
 	public void changeButton(int buttonCode, int red, int green, int mode) {
-		//if(!isButtonCode(buttonCode)) throw
-		int status = (isSceneButtonCode(buttonCode)) ? STATUS_ON : STATUS_CC;
-		output(status, buttonCode, LColor.velocity(red, green, mode));
+		//if(!isButtonCode(buttonCode)) throw	
+		if( buttonCode <= 8 ) buttonCode = buttonNumberToCode(buttonCode);
+		output(STATUS_CC, buttonCode, LColor.velocity(red, green, mode));
+	}
+
+	/**
+	 * Changes a single Control or Scene Button. Specify the Button by its name
+	 *
+	 * @param buttonCode Code of the button
+	 * @param c     LColor object
+	 *
+	 * Errors raised:
+	 * [Launchpad::NoValidGridCoordinatesError] when coordinates aren't within the valid range
+	 * [Launchpad::NoValidBrightnessError] when brightness values aren't within the valid range
+	 * [Launchpad::NoOutputAllowedError] when output is not enabled
+	 */
+	public void changeSceneButton(int buttonCode, LColor c) {
+		changeSceneButton(buttonCode, c.red, c.green, c.mode);
+	}
+
+	/**
+	 * Changes a single Control or Scene Button. Specify the Button by its name
+	 *
+	 * @param buttonCode Code of the button
+	 * @param red   brightness of red LED
+	 * @param green brightness of green LED
+	 *
+	 * Errors raised:
+	 * [Launchpad::NoValidGridCoordinatesError] when coordinates aren't within the valid range
+	 * [Launchpad::NoValidBrightnessError] when brightness values aren't within the valid range
+	 * [Launchpad::NoOutputAllowedError] when output is not enabled
+	 */
+	public void changeSceneButton(int buttonCode, int red, int green) {
+		changeSceneButton(buttonCode, red, green, LColor.NORMAL);
+	}
+
+	/**
+	 * Changes a single Control or Scene Button. Specify the Button by its name
+	 *
+	 * @param buttonCode Code of the button
+	 * @param red   brightness of red LED
+	 * @param green brightness of green LED
+	 * @param mode brightness of green LED 
+	 *
+	 * Errors raised:
+	 * [Launchpad::NoValidGridCoordinatesError] when coordinates aren't within the valid range
+	 * [Launchpad::NoValidBrightnessError] when brightness values aren't within the valid range
+	 * [Launchpad::NoOutputAllowedError] when output is not enabled
+	 */
+	public void changeSceneButton(int buttonCode, int red, int green, int mode) {
+		//if(!isButtonCode(buttonCode)) throw	
+		if( buttonCode <= 8 ) buttonCode = sceneButtonNumberToCode(buttonCode);
+		output(STATUS_ON, buttonCode, LColor.velocity(red, green, mode));
 	}
 
 	/**
@@ -457,7 +585,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 		int velocity = message.getMessage()[2] & 0xFF;
 
 		//process button event	
-		if(code == STATUS_CC || (code == STATUS_ON || code == STATUS_OFF) && isSceneButtonCode(note)) {
+		if(code == STATUS_CC) {
 			for(LaunchpadListener listener : listeners) {				
 				if(velocity == 127) { 
 					listener.launchpadButtonPressed(note);
@@ -472,15 +600,30 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 
 		//process grid event        
 		if( code == STATUS_ON || code == STATUS_OFF) {
-			for(LaunchpadListener listener : listeners) {				
-				if(velocity == 127) { 
-					listener.launchpadGridPressed(note % 16, note / 16);
+
+			if( Launchpad.isSceneButtonCode(note) )  {
+				for(LaunchpadListener listener : listeners) {				
+					if(velocity == 127) { 
+						listener.launchpadSceneButtonPressed(note);
+					}
+					else {
+						listener.launchpadSceneButtonReleased(note);			
+					}					
 				}
-				else {
-					listener.launchpadGridReleased(note % 16, note / 16);			
-				}					
+				PApplet.println("SceneButton :" + note);  
+				return;
 			}
-			//PApplet.println("x:" + (note % 16) + " y:" + (note / 16)); 
+			else {
+				for(LaunchpadListener listener : listeners) {				
+					if(velocity == 127) { 
+						listener.launchpadGridPressed(note % 16, note / 16);
+					}
+					else {
+						listener.launchpadGridReleased(note % 16, note / 16);			
+					}					
+				}
+			}
+			PApplet.println("x:" + (note % 16) + " y:" + (note / 16)); 
 			return;
 		}
 
@@ -497,42 +640,6 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	private void output(int status, int data1, int data2) {
 		//raise NoOutputAllowedError if @output.nil?
 		midiBus.sendMessage(new byte[]{ (byte) status, (byte) data1, (byte) data2});
-	}
-
-	/**
-	 *  checks for valid button code
-	 *
-	 *  @param buttonCode code of the button
-	 *  @return boolean if code is valid
-	 */
-	private boolean isButtonCode(int buttonCode) {
-		if(buttonCode == BUTTON_UP)      return true;
-		if(buttonCode == BUTTON_DOWN)    return true;
-		if(buttonCode == BUTTON_LEFT)    return true;
-		if(buttonCode == BUTTON_RIGHT)   return true;
-		if(buttonCode == BUTTON_SESSION) return true;
-		if(buttonCode == BUTTON_USER1)   return true;
-		if(buttonCode == BUTTON_USER2)   return true;
-		if(buttonCode == BUTTON_MIXER)   return true;
-		return isSceneButtonCode(buttonCode);
-	}
-
-	/**
-	 *  checks for valid scene button code
-	 *
-	 *  @param buttonCode code of the button
-	 *  @return boolean wether code is as scene button
-	 */
-	private boolean isSceneButtonCode(int buttonCode) {
-		if(buttonCode == BUTTON_SCENE1) return true;
-		if(buttonCode == BUTTON_SCENE2) return true;
-		if(buttonCode == BUTTON_SCENE3) return true;
-		if(buttonCode == BUTTON_SCENE4) return true;
-		if(buttonCode == BUTTON_SCENE5) return true;
-		if(buttonCode == BUTTON_SCENE6) return true;
-		if(buttonCode == BUTTON_SCENE7) return true;
-		if(buttonCode == BUTTON_SCENE8) return true;
-		return false;
 	}
 
 }
