@@ -1,26 +1,83 @@
 = launchpad
 
-This library provides an interface to access novation's launchpad programmatically. It's based on Thomas Jachmanns {ruby launchpad gem}[http://github.com/thomasjachmann/launchpad]. LEDs can be lighted and button presses can be responded to. Internally, launchpad's MIDI input/output is used to accomplish this.
+This library provides an interface to access {novation's launchpad}[http://www.novationmusic.com/products/launchpad] programmatically. It's based on Thomas Jachmanns {ruby launchpad gem}[http://github.com/thomasjachmann/launchpad]. LEDs can be lighted and button presses can be listened to. In addition, it includes a wrapper for the {Monomic Library}[http://jkriss.github.com/monomic/] as well.
+
 
 == Requirements
 
 * Severin Smiths {themidibus library}[http://smallbutdigital.com/themidibus.php]
-* On Mac OS X <= 10.6.2 you need Humatics {mmj library}[http://www.humatic.de/htools/mmj.htm] as well. Yes, go and spend those 3.5 - it's worth it!
-
+* On Mac OS X < Java Update 6 you need Humatics {mmj library}[http://www.humatic.de/htools/mmj.htm] as well. Yes, go and spend those 3.5 - it's worth it!
+* obviously a Novation Launchpad ;-)
 
 == Installation
 
-Download the zipped library file and move it to the code folder insider your project. Do the same with *themidibus* library. If needed,
-install *mmj* library as described in their documentation.
+Download, unzip and put the extracted launchpad folder into the libraries folder of your processing sketches. Reference and examples are included in the launchpad folder. Do the same with *themidibus* and *monomic* library.  If needed (only Mac OS X with java Update < 6), install *mmj* library as described in their documentation.
+
 
 == Usage
 
-For more details, see the examples. 
+Basically, create an instance of the Launchpad class and your're ready to go. This is a simple example that switches on all LEDs (for testing), resets the launchpad again and then lights the grid button at position 4/4 (from top left).
 
+  import themidibus.*;
+  import com.rngtng.launchpad.*;
+  
+  Launchpad device;
+  
+  void setup() {
+    device = new Launchpad(this);
+    noLoop();
+  }
+  
+  void draw() {
+    device.testLeds();
+    delay(1000);
+    device.reset();
+    delay(1000);
+    device.changeGrid( 4, 4, LColor.RED_HIGH + LColor.GREEN_LOW);
+  }
+
+For Interaction, make sure to include Pressed/Released Listener for grid, the button on the top and scene buttons on the right. This is an interaction example lighting all grid buttons in red when pressed and keeping them lit.
+
+  import themidibus.*;
+  import com.rngtng.launchpad.*;
+  
+  Launchpad device;
+  
+  void setup() {
+    device = new Launchpad(this);
+    noLoop();
+  }
+  
+  void draw() {
+  }
+  
+  void launchpadGridPressed(int x, int y) {
+    device.changeGrid( x, y, LColor.RED_HIGH);
+  }
+  
+  void launchpadButtonPressed(int buttonCode) {
+    if(buttonCode == LButton.MIXER) exit();
+  }
+
+
+For more details, see the examples. Most examples are ported from the ruby and monomic library
 
 == Near future plans
+ * add proper Exception/Warning handling
+ * use entities instead of Consts??
+ * add test (how to do this with processing??)
+
 
 == Changelog
+
+=== v0.2.0
+
+* interaction fully working, accepts PApplet or custom Listeners
+* first stable version, API is nearly fixed now
+* nice color handling using the LColor class
+* monomic wrapper class
+* lots of new examples
+* proper buffer & flashing support
 
 === v0.1.0
 
