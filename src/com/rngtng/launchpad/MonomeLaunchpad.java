@@ -25,17 +25,18 @@ import jklabs.monomic.Monome;
 import processing.core.PApplet;
 
 
-class MonomicLaunchpad extends Monome implements LaunchpadListener {
+public class MonomeLaunchpad extends Monome implements LaunchpadListener {
 
     private LColor color_on, color_off;
     Launchpad launchpad;
     
-    MonomicLaunchpad(Object listener) {
+    public MonomeLaunchpad(Object listener) {
       super(listener);
       launchpad = new Launchpad( (PApplet) listener);
       launchpad.addListener(this);      
-      color_on  = new LColor(LColor.RED_HIGH, LColor.GREEN_OFF);
-      color_off = new LColor(LColor.RED_OFF, LColor.GREEN_OFF);
+      color_on  = new LColor(LColor.RED_HIGH); //full Red
+      color_off = new LColor(); //Black
+      launchpad.reset();
     }
     
 	////////////////////////////////////////////////// monome functions
@@ -53,12 +54,16 @@ class MonomicLaunchpad extends Monome implements LaunchpadListener {
 
 	public void setRow(int i, byte bitVals) {
 		super.setRow(i, bitVals);
-		//sendSerial((byte) ((ROW_PREFIX << 4) + i), bitVals);
+		for(int k = 0; k < 8; k++) {
+			launchpad.changeGrid(k, i, (((bitVals >> k) & 1) == 1) ? color_on : color_off);
+		}
 	}
 
 	public void setCol(int i, byte bitVals) {
 		super.setCol(i, bitVals);
-		//sendSerial((byte) ((COL_PREFIX << 4) + i), bitVals);
+		for(int k = 0; k < 8; k++) {
+			launchpad.changeGrid(i, k, (((bitVals >> k) & 1) == 1) ? color_on : color_off);
+		}
 	}
 
 ////////////////////////////////////////////////// listener functions
@@ -75,5 +80,11 @@ class MonomicLaunchpad extends Monome implements LaunchpadListener {
 	}
 
 	public void launchpadButtonReleased(int buttonCode) {
+	}
+
+	public void launchpadSceneButtonPressed(int buttonCode) {		
+	}
+
+	public void launchpadSceneButtonReleased(int buttonCode) {
 	}
 }
