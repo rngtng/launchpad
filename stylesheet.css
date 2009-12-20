@@ -1,5 +1,16 @@
 /* processingLibs style by andreas schlegel, sojamo. */
 
+#header {
+  background: #58ACFA !important;
+  width: 100%;
+  margin-left: -64px;
+  padding-left: 64px;
+  padding-bottom: 24px !important;
+}
+
+#header h1 {
+  color: #fff !important;
+}
 
 * {
 	margin:0;
