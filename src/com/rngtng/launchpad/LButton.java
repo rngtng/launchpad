@@ -1,5 +1,12 @@
 package com.rngtng.launchpad;
 
+/**
+ * The Button class to handle the different Button types, acces thier MIDI codes
+ * and transform code <-> numer conversions
+ *
+ * @author rngtng - Tobias Bielohlawek
+ *
+ */
 public class LButton {
 
 	public final static int UP      = 0x68;

@@ -1,5 +1,11 @@
 package com.rngtng.launchpad;
 
+/**
+ * The LaunchpadListener Interface, implement this for interaction feedback
+ *
+ * @author rngtng - Tobias Bielohlawek
+ *
+ */
 public interface LaunchpadListener {
     
     public void launchpadGridPressed(int x, int y);

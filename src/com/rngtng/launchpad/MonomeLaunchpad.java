@@ -25,6 +25,12 @@ import jklabs.monomic.Monome;
 import processing.core.PApplet;
 
 
+/**
+ * An implementation of the Monomic API to get your Launchpad working with Monome stuff
+ *
+ * @author rngtng - Tobias Bielohlawek
+ *
+ */
 public class MonomeLaunchpad extends Monome implements LaunchpadListener {
 
     private LColor color_on, color_off;

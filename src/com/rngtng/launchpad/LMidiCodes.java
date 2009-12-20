@@ -1,5 +1,11 @@
 package com.rngtng.launchpad;
 
+/**
+ * Set of MidiCodes to send to Launchpad
+ *
+ * @author rngtng - Tobias Bielohlawek
+ *
+ */
 public interface LMidiCodes {
 	public final static int STATUS_NIL     = 0x00;
 	public final static int STATUS_OFF     = 0x80;

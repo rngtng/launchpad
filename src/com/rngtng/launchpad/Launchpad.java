@@ -30,9 +30,7 @@ import processing.core.PImage;
 import themidibus.*;
 
 /**
- * this is a template class and can be used to start a new processing library.
- * make sure you rename this class as well as the name of the package template
- * this class belongs to.
+ * This is the Main class to control your Launchpad. Please the Docs and Examples for usage
  *
  * @example Launchpad
  * @author rngtng - Tobias Bielohlawek

@@ -26,6 +26,12 @@ import java.lang.reflect.Method;
 
 import processing.core.PApplet;
 
+/**
+ * A wrapper class to to PApplet into a LaunchpadListerner for generic Listener handling 
+ *
+ * @author rngtng - Tobias Bielohlawek
+ *
+ */
 public class LaunchadPAppletListener implements LaunchpadListener {
 
 	PApplet app;

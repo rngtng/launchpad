@@ -1,5 +1,11 @@
 package com.rngtng.launchpad;
 
+/**
+ * The Color class, to handle the MIDI Color and Mode codes
+ *
+ * @author rngtng - Tobias Bielohlawek
+ *
+ */
 public class LColor {
 
 	public final static int OFF           =  0;
