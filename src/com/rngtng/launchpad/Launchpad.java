@@ -1,5 +1,5 @@
 /*
-A nice wrapper class to controll the novation launchpad 
+A nice wrapper class to control the novation launchpad 
 
 (c) copyright 2009 by rngtng - Tobias Bielohlawek
 
@@ -70,7 +70,8 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 		midiBus.addMidiListener(this);
 
 		listeners = new Vector<LaunchpadListener>();
-		addListener(new LaunchadPAppletListener(_app));		
+		addListener(new LaunchadPAppletListener(_app));
+		reset();
 	}
 
 	public void dispose() {
@@ -86,84 +87,6 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	public String version() {
 		return VERSION;
 	}
-
-	/* static ones */
-
-	/**
-	 *  checks for valid button code
-	 *
-	 *  @param buttonCode code of the button
-	 *  @return boolean if code is valid
-	 */
-	public static boolean isButtonCode(int buttonCode) {
-		if( buttonCode == Launchpad.BUTTON_UP) return true;
-		if( buttonCode == Launchpad.BUTTON_DOWN) return true;
-		if( buttonCode == Launchpad.BUTTON_LEFT) return true;
-		if( buttonCode == Launchpad.BUTTON_RIGHT) return true;
-		if( buttonCode == Launchpad.BUTTON_SESSION) return true;
-		if( buttonCode == Launchpad.BUTTON_USER1) return true;
-		if( buttonCode == Launchpad.BUTTON_USER2) return true;
-		if( buttonCode == Launchpad.BUTTON_MIXER) return true;
-		return false;
-	}
-
-	/**
-	 *  checks for valid scene button code
-	 *
-	 *  @param buttonCode code of the button
-	 *  @return boolean whether code is as scene button
-	 */
-	public static  boolean isSceneButtonCode(int buttonCode) {
-		if( buttonCode == Launchpad.BUTTON_SCENE1) return true;
-		if( buttonCode == Launchpad.BUTTON_SCENE2) return true;
-		if( buttonCode == Launchpad.BUTTON_SCENE3) return true;
-		if( buttonCode == Launchpad.BUTTON_SCENE4) return true;
-		if( buttonCode == Launchpad.BUTTON_SCENE5) return true;
-		if( buttonCode == Launchpad.BUTTON_SCENE6) return true;
-		if( buttonCode == Launchpad.BUTTON_SCENE7) return true;
-		if( buttonCode == Launchpad.BUTTON_SCENE8) return true;
-		return false;
-	}
-
-	/**
-	 *  return button code for button number
-	 *
-	 *  @param buttonNumber code of the button
-	 *  @return button Code
-	 */
-	public static int buttonNumberToCode(int buttonNumber) {
-		return buttonNumber + 0x68;		
-	}
-
-	/**
-	 *  return button number for button code
-	 *
-	 *  @param buttonCode code of the button
-	 *  @return button number
-	 */
-	public static int buttonCodeToNumber(int buttonCode) {
-		return buttonCode - 0x68;		
-	}
-
-	/**
-	 *  return scene button Code for scene button number
-	 *
-	 *  @param buttonNumber code of the scene button
-	 *  @return scene button code
-	 */	
-	public static int sceneButtonNumberToCode(int buttonNumber) {
-		return (buttonNumber * 16) - 8;		
-	}
-
-	/**
-	 *  return scene button number for scene button code
-	 *
-	 *  @param buttonCode code of the scene button
-	 *  @return scene button number
-	 */	
-	public static int sceneButtonCodeToNumber(int buttonCode) {
-		return (buttonCode + 8) / 16;		
-	}	
 
 	/* -- Listener Handling -- */
 
@@ -244,7 +167,22 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	/**
 	 * Changes a single Control or Scene Button. Specify the Button by its name
 	 *
-	 * @param buttonCode Code of the button
+	 * @param button value of the button (number or code)
+	 * @param color    color value
+	 *
+	 * Errors raised:
+	 * [Launchpad::NoValidGridCoordinatesError] when coordinates aren't within the valid range
+	 * [Launchpad::NoValidBrightnessError] when brightness values aren't within the valid range
+	 * [Launchpad::NoOutputAllowedError] when output is not enabled
+	 */
+	public void changeButton(int button, int color) {
+		changeButton(button, new LColor(color));
+	}
+	
+	/**
+	 * Changes a single Control or Scene Button. Specify the Button by its name
+	 *
+	 * @param button value of the button (number or code)
 	 * @param c     LColor object
 	 *
 	 * Errors raised:
@@ -252,49 +190,30 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	 * [Launchpad::NoValidBrightnessError] when brightness values aren't within the valid range
 	 * [Launchpad::NoOutputAllowedError] when output is not enabled
 	 */
-	public void changeButton(int buttonCode, LColor c) {
-		changeButton(buttonCode, c.red, c.green, c.mode);
-	}
-
+	public void changeButton(int button, LColor c) {
+		output(STATUS_CC, LButton.buttonCode(button), c.velocity());		
+	}	
+	
+	
 	/**
 	 * Changes a single Control or Scene Button. Specify the Button by its name
 	 *
-	 * @param buttonCode Code of the button
-	 * @param red   brightness of red LED
-	 * @param green brightness of green LED
+	 * @param button value of the button (number or code)
+	 * @param color    color value
 	 *
 	 * Errors raised:
 	 * [Launchpad::NoValidGridCoordinatesError] when coordinates aren't within the valid range
 	 * [Launchpad::NoValidBrightnessError] when brightness values aren't within the valid range
 	 * [Launchpad::NoOutputAllowedError] when output is not enabled
 	 */
-	public void changeButton(int buttonCode, int red, int green) {
-		changeButton(buttonCode, red, green, LColor.NORMAL);
+	public void changeSceneButton(int button, int color) {
+		changeSceneButton(button, new LColor(color));
 	}
-
+	
 	/**
 	 * Changes a single Control or Scene Button. Specify the Button by its name
 	 *
-	 * @param buttonCode Code of the button
-	 * @param red   brightness of red LED
-	 * @param green brightness of green LED
-	 * @param mode brightness of green LED 
-	 *
-	 * Errors raised:
-	 * [Launchpad::NoValidGridCoordinatesError] when coordinates aren't within the valid range
-	 * [Launchpad::NoValidBrightnessError] when brightness values aren't within the valid range
-	 * [Launchpad::NoOutputAllowedError] when output is not enabled
-	 */
-	public void changeButton(int buttonCode, int red, int green, int mode) {
-		//if(!isButtonCode(buttonCode)) throw	
-		if( buttonCode <= 8 ) buttonCode = buttonNumberToCode(buttonCode);
-		output(STATUS_CC, buttonCode, LColor.velocity(red, green, mode));
-	}
-
-	/**
-	 * Changes a single Control or Scene Button. Specify the Button by its name
-	 *
-	 * @param buttonCode Code of the button
+	 * @param button value of the button (number or code)
 	 * @param c     LColor object
 	 *
 	 * Errors raised:
@@ -302,45 +221,26 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	 * [Launchpad::NoValidBrightnessError] when brightness values aren't within the valid range
 	 * [Launchpad::NoOutputAllowedError] when output is not enabled
 	 */
-	public void changeSceneButton(int buttonCode, LColor c) {
-		changeSceneButton(buttonCode, c.red, c.green, c.mode);
+	public void changeSceneButton(int button, LColor c) {
+		output(STATUS_ON, LButton.sceneButtonCode(button) - LButton.SCENE_OFFSET, c.velocity());		
 	}
 
 	/**
-	 * Changes a single Control or Scene Button. Specify the Button by its name
+	 * Changes a single Button on the Grid. Specify the Button by its x & y coordinates
 	 *
-	 * @param buttonCode Code of the button
-	 * @param red   brightness of red LED
-	 * @param green brightness of green LED
+	 * @param x     x coordinate
+	 * @param y     y coordinate
+	 * @param color    color value
 	 *
 	 * Errors raised:
 	 * [Launchpad::NoValidGridCoordinatesError] when coordinates aren't within the valid range
 	 * [Launchpad::NoValidBrightnessError] when brightness values aren't within the valid range
 	 * [Launchpad::NoOutputAllowedError] when output is not enabled
 	 */
-	public void changeSceneButton(int buttonCode, int red, int green) {
-		changeSceneButton(buttonCode, red, green, LColor.NORMAL);
-	}
-
-	/**
-	 * Changes a single Control or Scene Button. Specify the Button by its name
-	 *
-	 * @param buttonCode Code of the button
-	 * @param red   brightness of red LED
-	 * @param green brightness of green LED
-	 * @param mode brightness of green LED 
-	 *
-	 * Errors raised:
-	 * [Launchpad::NoValidGridCoordinatesError] when coordinates aren't within the valid range
-	 * [Launchpad::NoValidBrightnessError] when brightness values aren't within the valid range
-	 * [Launchpad::NoOutputAllowedError] when output is not enabled
-	 */
-	public void changeSceneButton(int buttonCode, int red, int green, int mode) {
-		//if(!isButtonCode(buttonCode)) throw	
-		if( buttonCode <= 8 ) buttonCode = sceneButtonNumberToCode(buttonCode);
-		output(STATUS_ON, buttonCode, LColor.velocity(red, green, mode));
-	}
-
+	public void changeGrid(int x, int y, int color) {
+		changeGrid(x, y, new LColor(color));
+	}	
+	
 	/**
 	 * Changes a single Button on the Grid. Specify the Button by its x & y coordinates
 	 *
@@ -354,42 +254,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	 * [Launchpad::NoOutputAllowedError] when output is not enabled
 	 */
 	public void changeGrid(int x, int y, LColor c) {
-		changeGrid(x, y, c.red, c.green, c.mode);
-	}
-
-	/**
-	 * Changes a single Button on the Grid. Specify the Button by its x & y coordinates
-	 *
-	 * @param x     x coordinate
-	 * @param y     y coordinate
-	 * @param red   brightness of red LED
-	 * @param green brightness of green LED
-	 *
-	 * Errors raised:
-	 * [Launchpad::NoValidGridCoordinatesError] when coordinates aren't within the valid range
-	 * [Launchpad::NoValidBrightnessError] when brightness values aren't within the valid range
-	 * [Launchpad::NoOutputAllowedError] when output is not enabled
-	 */
-	public void changeGrid(int x, int y, int red, int green) {
-		changeGrid(x, y, red, green, LColor.NORMAL);
-	}
-
-	/**
-	 * Changes a single Button on the Grid. Specify the Button by its x & y coordinates
-	 *
-	 * @param x     x coordinate
-	 * @param y     y coordinate
-	 * @param red   brightness of red LED
-	 * @param green brightness of green LED
-	 * @param mode  button mode
-	 *
-	 * Errors raised:
-	 * [Launchpad::NoValidGridCoordinatesError] when coordinates aren't within the valid range
-	 * [Launchpad::NoValidBrightnessError] when brightness values aren't within the valid range
-	 * [Launchpad::NoOutputAllowedError] when output is not enabled
-	 */
-	public void changeGrid(int x, int y, int red, int green, int mode) {
-		output(STATUS_ON, (y * 16 + x), LColor.velocity(red, green, mode));
+		output(STATUS_ON, (y * 16 + x), c.velocity());
 	}
 
 	/**
@@ -520,7 +385,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	 * [Launchpad::NoOutputAllowedError] when output is not enabled
 	 */
 	public void flashing_on() {
-		buffering_mode(0, 0, false, false);
+		buffering_mode(BUFFER0, BUFFER0);
 	}
 
 	/**
@@ -531,7 +396,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	 * [Launchpad::NoOutputAllowedError] when output is not enabled
 	 */
 	public void flashing_off() {
-		buffering_mode(1, 0, false, false);
+		buffering_mode(BUFFER1, BUFFER0);
 	}
 
 	/**
@@ -542,31 +407,34 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	 * [Launchpad::NoOutputAllowedError] when output is not enabled
 	 */
 	public void flashing_auto()  {
-		buffering_mode(0, 0, false, true);
-	}
-
-
-	public void buffering_mode() {
-		buffering_mode(0, 0, false, false);
+		buffering_mode(BUFFER0, BUFFER0, MODE_FLASHING);
 	}
 
 	/**
 	 * Controls the two buffers.
 	 *
-	 * Optional options hash:
-	 *
 	 * @param display_buffer which buffer to use for display, defaults to +0+
 	 * @param update_buffer  which buffer to use for updates when <tt>:mode</tt> is set to <tt>:buffering</tt>, defaults to +0+ (see change)
-	 * @param copy           whether to copy the LEDs states from the new display_buffer over to the new update_buffer, <tt>true/false</tt>, defaults to <tt>false</tt>
-	 * @param flashing       whether to start flashing by automatically switching between the two buffers for display, <tt>true/false</tt>, defaults to <tt>false</tt>
 	 *
 	 * Errors raised:
 	 * [Launchpad::NoOutputAllowedError] when output is not enabled
 	 */
-	public void buffering_mode(int display_buffer, int update_buffer, boolean copy, boolean flashing) {
-		int data = display_buffer + 4 * update_buffer + 32;
-		if(copy) data += 16;
-		if(flashing) data += 8;
+	public void buffering_mode(int display_buffer, int update_buffer) {
+		buffering_mode(BUFFER0, BUFFER0, 0);
+	}
+
+	/**
+	 * Controls the two buffers.
+	 *
+	 * @param display_buffer which buffer to use for display, defaults to +0+
+	 * @param update_buffer  which buffer to use for updates when <tt>:mode</tt> is set to <tt>:buffering</tt>, defaults to +0+ (see change)
+	 * @param extra          values to control FLASHING and COPY
+	 *
+	 * Errors raised:
+	 * [Launchpad::NoOutputAllowedError] when output is not enabled
+	 */
+	public void buffering_mode(int display_buffer, int update_buffer, int extra) {
+		int data = display_buffer + 4 * update_buffer + 32 + extra;
 		output(STATUS_CC, STATUS_NIL, data);
 	}
 
@@ -583,7 +451,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 		int code     = message.getStatus();
 		int note     = message.getMessage()[1] & 0xFF;
 		int velocity = message.getMessage()[2] & 0xFF;
-
+		
 		//process button event	
 		if(code == STATUS_CC) {
 			for(LaunchpadListener listener : listeners) {				
@@ -601,16 +469,16 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 		//process grid event        
 		if( code == STATUS_ON || code == STATUS_OFF) {
 
-			if( Launchpad.isSceneButtonCode(note) )  {
+			if( LButton.isSceneButtonCode(note + LButton.SCENE_OFFSET) )  {
 				for(LaunchpadListener listener : listeners) {				
 					if(velocity == 127) { 
-						listener.launchpadSceneButtonPressed(note);
+						listener.launchpadSceneButtonPressed(note + LButton.SCENE_OFFSET );
 					}
 					else {
-						listener.launchpadSceneButtonReleased(note);			
+						listener.launchpadSceneButtonReleased(note + LButton.SCENE_OFFSET);			
 					}					
 				}
-				PApplet.println("SceneButton :" + note);  
+				// PApplet.println("SceneButton :" + note);  
 				return;
 			}
 			else {
@@ -623,7 +491,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 					}					
 				}
 			}
-			PApplet.println("x:" + (note % 16) + " y:" + (note / 16)); 
+			// PApplet.println("x:" + (note % 16) + " y:" + (note / 16)); 
 			return;
 		}
 
