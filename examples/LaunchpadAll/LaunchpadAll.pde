@@ -20,7 +20,7 @@ void draw() {
       byte pos = byte(y*launchpad.width + x);
       if(pos > 0) data[pos-1] = 0;
       data[pos] = 3;
-      launchpad.change_all(data);
+      launchpad.changeAll(data);
       delay(100);
     }  
   }

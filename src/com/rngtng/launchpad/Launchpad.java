@@ -44,7 +44,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	public static int width = 8;
 	public static int height = width;
 
-	public final String VERSION = "0.2";
+	public final String VERSION = "0.2.1";
 
 	Vector<LaunchpadListener> listeners;
 
@@ -62,7 +62,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	 * @param outputName name of MIDI output Device
 	 */
 	public Launchpad(PApplet _app, String inputName, String outputName) {
-		app = _app;
+		this.app = _app;
 		app.registerDispose(this);
 		midiBus = new MidiBus(_app, inputName, outputName);
 		midiBus.addMidiListener(this);
@@ -268,29 +268,30 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	 * [Launchpad::NoValidBrightnessError] when brightness values aren't within the valid range
 	 * [Launchpad::NoOutputAllowedError] when output is not enabled
 	 */
-	public void change_all(LColor[] colors) {
+	public void changeAll(LColor[] colors) {
 		int param1, param2;
 
 		// send normal MIDI message to reset rapid LED change pointer
 		//  in this case, set mapping mode to x-y layout (the default)
 		output(STATUS_CC, STATUS_NIL, GRIDLAYOUT_XY);
-
+         
+		int default_color = new LColor().velocity();
 		//  send colors in slices of 2
 		for(int i = 0; i < 80; i = i + 2) {
 			try {
 				param1 = colors[i].velocity();
 			} catch (ArrayIndexOutOfBoundsException e) {
-				param1 = 0;
+				param1 = default_color;
 			} catch (NullPointerException e) {
-				param1 = 0;
+				param1 = default_color;
 			}
 
 			try {
 				param2 = colors[i+1].velocity();
 			}   catch (ArrayIndexOutOfBoundsException e) {
-				param2 = 0;
+				param2 = default_color;
 			}  catch (NullPointerException e) {
-				param2 = 0;
+				param2 = default_color;
 			}
 			output(STATUS_MULTI, param1, param2);
 		}
@@ -307,30 +308,31 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	 * [Launchpad::NoValidBrightnessError] when brightness values aren't within the valid range
 	 * [Launchpad::NoOutputAllowedError] when output is not enabled
 	 */
-	public void change_all(int[] colors) {
+	public void changeAll(int[] colors) {
 		int param1, param2;
 
 		// send normal MIDI message to reset rapid LED change pointer
 		//  in this case, set mapping mode to x-y layout (the default)
 		output(STATUS_CC, STATUS_NIL, GRIDLAYOUT_XY);
 
+		int default_color = new LColor().velocity();
 		//  send colors in slices of 2
 		for(int i = 0; i < 80; i = i + 2) {
 			try {
 				param1 = colors[i];
 			} catch (ArrayIndexOutOfBoundsException e) {
-				param1 = 0;
+				param1 = default_color;
 			} catch (NullPointerException e) {
-				param1 = 0;
+				param1 = default_color;
 			}
 
 			try {
 				param2 = colors[i+1];
 			}
 			catch (ArrayIndexOutOfBoundsException e) {
-				param2 = 0;
+				param2 = default_color;
 			}  catch (NullPointerException e) {
-				param2 = 0;
+				param2 = default_color;
 			}
 			output(STATUS_MULTI, param1, param2);
 		}
@@ -426,13 +428,13 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	 *
 	 * @param display_buffer which buffer to use for display, defaults to +0+
 	 * @param update_buffer  which buffer to use for updates when <tt>:mode</tt> is set to <tt>:buffering</tt>, defaults to +0+ (see change)
-	 * @param extra          values to control FLASHING and COPY
+	 * @param flags          values to control FLASHING and COPY
 	 *
 	 * Errors raised:
 	 * [Launchpad::NoOutputAllowedError] when output is not enabled
 	 */
-	public void buffering_mode(int display_buffer, int update_buffer, int extra) {
-		int data = display_buffer + 4 * update_buffer + 32 + extra;
+	public void buffering_mode(int display_buffer, int update_buffer, int flags) {
+		int data = display_buffer + 4 * update_buffer + 32 + flags;
 		output(STATUS_CC, STATUS_NIL, data);
 	}
 
