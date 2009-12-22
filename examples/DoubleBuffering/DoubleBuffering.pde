@@ -15,7 +15,7 @@ int BUFFER1 = 2;
 void setup() {
   launchpad = new Launchpad(this);
   launchpad.reset();
-  launchpad.flashing_auto();
+  launchpad.flashingAuto();
   mode = FLASHING;
   current_color  = new LColor(LColor.YELLOW_HIGH);
 
@@ -60,15 +60,15 @@ public void launchpadButtonPressed(int buttonCode) {
   switch(buttonCode) {
   case LButton.SESSION:
     mode = FLASHING;
-    launchpad.flashing_auto();
+    launchpad.flashingAuto();
     break;    
   case LButton.USER1:
     mode = BUFFER0;
-    launchpad.buffering_mode(Launchpad.BUFFER0, Launchpad.BUFFER0);
+    launchpad.bufferingMode(Launchpad.BUFFER0, Launchpad.BUFFER0);
     break;
   case LButton.USER2:
     mode = BUFFER1;
-    launchpad.buffering_mode(Launchpad.BUFFER1, Launchpad.BUFFER1);
+    launchpad.bufferingMode(Launchpad.BUFFER1, Launchpad.BUFFER1);
     break;
   case LButton.MIXER:
     launchpad.changeButton(LButton.MIXER, LColor.RED_HIGH);
@@ -90,9 +90,9 @@ public void launchpadGridPressed(int x, int y) {
     launchpad.changeGrid(x, y, current_color);
     break;
   case 1:
-    launchpad.buffering_mode(Launchpad.BUFFER1, Launchpad.BUFFER0);
+    launchpad.bufferingMode(Launchpad.BUFFER1, Launchpad.BUFFER0);
     launchpad.changeGrid(x, y, current_color.getRed() + current_color.getGreen() + LColor.FLASHING );
-    launchpad.flashing_auto();
+    launchpad.flashingAuto();
     break;
   default:
     launchpad.changeGrid(x, y, current_color.getRed() + current_color.getGreen() + LColor.BUFFERED );

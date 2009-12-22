@@ -347,7 +347,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	 * [Launchpad::NoValidBrightnessError] when brightness values aren't within the valid range
 	 * [Launchpad::NoOutputAllowedError] when output is not enabled
 	 */
-	public void change_all(PImage image) {
+	public void changeAll(PImage image) {
 		int param1, param2;
 
 		// send normal MIDI message to reset rapid LED change pointer
@@ -384,8 +384,8 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	 * Errors raised:
 	 * [Launchpad::NoOutputAllowedError] when output is not enabled
 	 */
-	public void flashing_on() {
-		buffering_mode(BUFFER0, BUFFER0);
+	public void flashingOn() {
+		bufferingMode(BUFFER0, BUFFER0);
 	}
 
 	/**
@@ -395,8 +395,8 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	 *
 	 * [Launchpad::NoOutputAllowedError] when output is not enabled
 	 */
-	public void flashing_off() {
-		buffering_mode(BUFFER1, BUFFER0);
+	public void flashingOff() {
+		bufferingMode(BUFFER1, BUFFER0);
 	}
 
 	/**
@@ -406,8 +406,8 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	 * Errors raised:
 	 * [Launchpad::NoOutputAllowedError] when output is not enabled
 	 */
-	public void flashing_auto()  {
-		buffering_mode(BUFFER0, BUFFER0, MODE_FLASHING);
+	public void flashingAuto()  {
+		bufferingMode(BUFFER0, BUFFER0, MODE_FLASHING);
 	}
 
 	/**
@@ -419,8 +419,8 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	 * Errors raised:
 	 * [Launchpad::NoOutputAllowedError] when output is not enabled
 	 */
-	public void buffering_mode(int display_buffer, int update_buffer) {
-		buffering_mode(BUFFER0, BUFFER0, 0);
+	public void bufferingMode(int display_buffer, int update_buffer) {
+		bufferingMode(BUFFER0, BUFFER0, 0);
 	}
 
 	/**
@@ -433,7 +433,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	 * Errors raised:
 	 * [Launchpad::NoOutputAllowedError] when output is not enabled
 	 */
-	public void buffering_mode(int display_buffer, int update_buffer, int flags) {
+	public void bufferingMode(int display_buffer, int update_buffer, int flags) {
 		int data = display_buffer + 4 * update_buffer + 32 + flags;
 		output(STATUS_CC, STATUS_NIL, data);
 	}
