@@ -7,7 +7,7 @@ byte[] data = new byte[64];
 
 void setup() {
   launchpad = new Launchpad(this);
-  launchpad.flashing_auto();
+  launchpad.flashingAuto();
 }
 
 void draw() {

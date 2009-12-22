@@ -8,7 +8,7 @@ LColor current_color;
 
 void setup() {
   launchpad = new Launchpad(this);
-  launchpad.flashing_auto();
+  launchpad.flashingAuto();
   current_color  = new LColor(LColor.YELLOW_HIGH);
 }
 
