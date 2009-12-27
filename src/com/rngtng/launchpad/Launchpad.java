@@ -46,6 +46,8 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 
 	public final String VERSION = "0.2.1";
 
+	boolean connected;
+
 	Vector<LaunchpadListener> listeners;
 
 	public Launchpad(PApplet _app) {
@@ -63,13 +65,17 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	 */
 	public Launchpad(PApplet _app, String inputName, String outputName) {
 		this.app = _app;
+		this.connected = false;
 		app.registerDispose(this);
-		midiBus = new MidiBus(_app, inputName, outputName);
-		midiBus.addMidiListener(this);
+		midiBus = new MidiBus(_app);
+		if(midiBus.addInput(inputName) && midiBus.addOutput(outputName)) {		
+			midiBus.addMidiListener(this);
 
-		listeners = new Vector<LaunchpadListener>();
-		addListener(new LaunchadPAppletListener(_app));
-		reset();
+			listeners = new Vector<LaunchpadListener>();
+			addListener(new LaunchadPAppletListener(_app));
+			reset();
+			this.connected = true;
+		}
 	}
 
 	public void dispose() {
@@ -85,7 +91,14 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	public String version() {
 		return VERSION;
 	}
-
+	
+	/**
+	 * @return wheter launchpad is connected
+	 */
+	public boolean connected() {
+		return this.connected;
+	}
+	
 	/* -- Listener Handling -- */
 
 	/**
@@ -176,7 +189,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	public void changeButton(int button, int color) {
 		changeButton(button, new LColor(color));
 	}
-	
+
 	/**
 	 * Changes a single Control or Scene Button. Specify the Button by its name
 	 *
@@ -191,8 +204,8 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	public void changeButton(int button, LColor c) {
 		output(STATUS_CC, LButton.buttonCode(button), c.velocity());		
 	}	
-	
-	
+
+
 	/**
 	 * Changes a single Control or Scene Button. Specify the Button by its name
 	 *
@@ -207,7 +220,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	public void changeSceneButton(int button, int color) {
 		changeSceneButton(button, new LColor(color));
 	}
-	
+
 	/**
 	 * Changes a single Control or Scene Button. Specify the Button by its name
 	 *
@@ -238,7 +251,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	public void changeGrid(int x, int y, int color) {
 		changeGrid(x, y, new LColor(color));
 	}	
-	
+
 	/**
 	 * Changes a single Button on the Grid. Specify the Button by its x & y coordinates
 	 *
@@ -274,7 +287,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 		// send normal MIDI message to reset rapid LED change pointer
 		//  in this case, set mapping mode to x-y layout (the default)
 		output(STATUS_CC, STATUS_NIL, GRIDLAYOUT_XY);
-         
+
 		int default_color = new LColor().velocity();
 		//  send colors in slices of 2
 		for(int i = 0; i < 80; i = i + 2) {
@@ -451,7 +464,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 		int code     = message.getStatus();
 		int note     = message.getMessage()[1] & 0xFF;
 		int velocity = message.getMessage()[2] & 0xFF;
-		
+
 		//process button event	
 		if(code == STATUS_CC) {
 			for(LaunchpadListener listener : listeners) {				
