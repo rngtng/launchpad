@@ -70,6 +70,11 @@ For more details, see the examples. Most examples are ported from the ruby and m
 
 == Changelog
 
+=== v0.2.2
+* bugfixes
+* added connected() method
+
+
 === v0.2.0
 
 * interaction fully working, accepts PApplet or custom Listeners
