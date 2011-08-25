@@ -1,303 +1,338 @@
-<project name="launchpad" default="build" basedir="../">
-    
-	<description>
-        processingLibs. ant build file.
-    </description>
+<project name="launchpad" default="clean" basedir="../">
 
-	
-<!-- #### (1) where are your processing libraries located? edit location. #### -->
-	<property name="processing" location="../../arduino/libraries"/>
+<!--
+    Properties for your project should be set and modified in the
+    build.properties file (located in the same folder as this build.xml file).
 
 
-<!-- #### (2) where are the jar files located that are required for compiling 
-		your library such as e.g. core.jar ? edit location. #### -->
+    This file should not be edited, only if you know what you are doing.
+    if you have recommendations for improvements, please let andreas know
+    at andi@sojamo.de
+-->
 
-	<property name="libraryClasspath"  location="../libs"/>	
-	<path id="library-classpath">
-		<fileset dir="${libraryClasspath}" >		
-<!-- #### (3) add the jar files that are required for compiling. edit name.
-		for more include files. duplicate <include name="" /> #### -->
-			<include name="themidibus.jar"/>
-			<include name="monomic.jar"/>			
-			<include name="core.jar"/>			
-		</fileset>
-	</path>		
-	
+  <property file="./resources/build.properties" />
 
-<!-- #### (4) set the java version that should be used to compile your library. #### -->	
-	<property name="javaVersion" value="1.6"/>
-		
-		
-		
-	<!-- #### 	the following items are properties that will be used to make changes to 
-				the html document template. values of properties will be 
-				implemented ito the document automatically. #### -->	
-				
-<!-- #### (5) who is the author of this library?  edit value.  #### -->
-	<property name="author" value="rngtng - Tobias Bielohlawek"/>
-	
-<!-- #### (6) which copyright?  edit value.  #### -->
-	<property name="copyright" value="(c) 2009"/>
+  <description>
+    ${ant.description}
+  </description>
 
-<!-- #### (7) give your library a name. edit value.  #### -->
-	<property name="libraryName"  value="launchpad"/>
-	
-<!-- #### (8) give your library a name. edit value.   #### -->
-	<property name="versionNumber"  value="0.2.2"/>
-	
-<!-- #### (9) your contact url. edit value. #### -->
-	<property name="yourLink"  value="http://www.rngtng.com/launchpad" />
-	
-<!-- #### (10) a comma separated list of keywords describing your library. edit value. #### -->
-	<property name="keywords"  value="midi,launchpad,controller,novation,wrapper" />
-	
-<!-- #### (11) a comma separated list of platforms the library has been tested. edit value. #### -->
-	<property name="tested:platform"  value="Mac OS X" />
-	
-<!-- #### (12) the processing version this library has been tested with. edit value. #### -->
-	<property name="tested:processingVersion"  value="1.0.9" />
-	
-<!-- #### (13) does the library depend on any other library, dll, jnilib, etc. edit value. #### -->
-	<property name="tested:dependencies"  value="themidibus" />
-	<!-- <property name="tested:dependencies"  value="monomic" /> -->
-	
-<!-- #### (14) where can the source code be found? edit value. #### -->
-	<property name="source:host"  value="github" />
-	<property name="source:url"  value="http://github.com/" />
-	<property name="source:repository"  value="http://github.com/rngtng/launchpad" />
+  <property name="line" value="------------------------------------------------------------------------------------------------" />
 
+  <condition property="is.normal">
+    <equals arg1="${project.compile}" arg2="normal" />
+  </condition>
 
+  <property name="project.jar.name" value="${project.name}.jar"/>
+  <property name="project.src" location="src"/>
+  <property name="project.tmp" location="tmp"/>
+  <property name="project.web" location="web"/>
+  <property name="project.data" location="data"/>
+  <property name="project.lib" location="lib"/>
+  <property name="project.bin" location="bin"/>
+  <property name="project.bin.data" location="${project.bin}/data"/>
+  <property name="project.examples" location="examples"/>
+  <property name="project.reference" location="reference"/>
+  <property name="project.dist" location="distribution"/>
+  <property name="project.dist.version" location="distribution/${project.name}-${project.version}"/>
+  <property name="install.source" location="resources/install_instructions.txt"/>
+  <property name="install.destination" location="${project.dist.version}/INSTALL.txt"/>
 
+  <taskdef resource="net/sf/antcontrib/antcontrib.properties">
+    <classpath>
+      <pathelement location="./resources/code/ant-contrib-1.0b3.jar"/>
+    </classpath>
+  </taskdef>
 
+  <path id="classpath">
+    <fileset dir="${classpath.local.location}" includes="${classpath.local.include}" />
+    <fileset dir="${classpath.libraries.location}" includes="**/*.jar" />
+    <fileset dir="${project.lib}" includes="**/*.jar" />
+  </path>
+  <property name="classpath.full" refid="classpath"/>
 
+  <!-- Create the time stamp -->
+  <tstamp>
+    <format property="date" pattern="MM/dd/yyyy" offset="0" unit="hour"/>
+  </tstamp>
 
-
-
-	
-	
-	
-	
-	<!-- no changes or adjustments required below -->
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	<taskdef resource="net/sf/antcontrib/antcontrib.properties">
-		<classpath>
-			<pathelement location="./resources/code/ant-contrib-1.0b3.jar"/>
-		</classpath>
-	</taskdef>
-	<property name="jarFile" value="${libraryName}.jar"/>
-	<property name="src" location="src"/>
-	<property name="bin" location="bin"/>
-	<property name="reference" location="reference"/>
-	<property name="dist" location="distribution"/>
-	
-	
-	
-	<target name="init">
-	<echo>Properties initialized.
-	src path			${src}
-	bin path 			${bin}
-	libraryClasspath		${libraryClasspath}
-	processing Libraries	${processing}
-	java version		${javaVersion}
-	</echo>		
-	<echo>building library ...</echo>
-	<!-- Create the time stamp -->
-	<tstamp> 
-		<format property="date" pattern="MM/dd/yyyy" offset="0" unit="hour"/>
-	</tstamp>
-	<mkdir dir="${dist}"/>
-  </target>
-  
-	<!-- compile the library -->
-  <target name="compile" depends="init" description="compile the source" >  	
-		<javac srcdir="${src}" destdir="${bin}" source="${javaVersion}">
-			<classpath>
-				<path refid="library-classpath"/>
-			</classpath>
-		</javac>
+  <target name="init">
+    <echo>${line}
+  building a processing library, ${project.name} ${project.version}
+${line}
+  src path  ${project.src}
+  bin path   ${project.bin}
+  classpath.local  ${classpath.local.location}
+  sketchbook  ${sketchbook.location}
+  java version  ${java.target.version}
+${line}
+   </echo>
+   <mkdir dir="${project.bin}"/>
   </target>
 
-	<!-- build the distribution of the library -->
-  <target name="build" depends="compile" description="generate the distribution" >
-  	<!-- delete the previous content of the ${dist} folder -->
-  	<delete dir="${dist}" />
-  	
-  	<!-- build the structure for ${dist} -->
-  	<mkdir dir="${dist}" />
-  	<mkdir dir="${dist}/library" />
-  	<mkdir dir="${dist}/examples" />
-  	<mkdir dir="${dist}/reference" />
-  	<mkdir dir="${dist}/src" />
-  	<jar jarfile="${dist}/library/${jarFile}" basedir="${bin}"/>
-  	<copy todir="${dist}/examples">
-  		<fileset dir="examples"/>
-  	</copy>
-  	<copy todir="${dist}/src">
-  		<fileset dir="src"/>
-  	</copy> 
-  	
-	<!-- create the java reference of the library -->
- 	<mkdir dir="${reference}" />
- 	<javadoc bottom="processing library ${libraryName} by ${author}. ${copyright}" 
- 			 classpath="${libraryClasspath}/core.jar:${libraryClasspath}/themidibus.jar:${libraryClasspath}/monomic.jar" 
- 			 destdir="${reference}" 
- 			 verbose="false" 
- 			 stylesheetfile="resources/stylesheet.css" 
- 			 doctitle="Javadocs: ${libraryName}" 
- 			 public="true" version="false" 
- 			 windowtitle="Javadocs: ${libraryName}">
- 		<taglet name="ExampleTaglet" path="resources/code" />
- 		<fileset dir="${src}" defaultexcludes="yes">
- 			<!-- #### (9) add packages to be added to reference. #### -->
-			<include name="**/*"/>
-		</fileset>
- 	</javadoc>
- 	
-	<copy todir="${dist}/reference">
-		<fileset dir="${reference}" />
-	</copy>
-  	
-  	  	<!-- copy the jar file to processing's libraries -->
-  	  	<mkdir dir="${processing}/${libraryName}" />
-  		<copy todir="${processing}/${libraryName}">
-  			<fileset dir="${dist}"/>
-  		</copy> 
+  <target name="library.init" depends="init">
+    <echo message="init library ..." />
+  </target>
 
-  	<!-- zip the distribution of the library -->
-  	<zip destfile="${dist}/${libraryName}.zip"
-  	       basedir="${dist}"
-  	       excludes="**/_DS.Store"
-	/>
-  	
-  	<!-- <rename src="${dist}/${libraryName}.zip" dest="${dist}/${libraryName}_${versionNumber}.zip" /> -->
- 	
-  	<!-- organize the ${dist} folder -->
-  	<mkdir dir="${dist}/web" />
-  	<move todir="${dist}/web/reference">
-  		<fileset dir="${dist}/reference" />
-  	</move>
-  	
-  	<move todir="${dist}/web/examples">
-  		<fileset dir="${dist}/examples" />
-  	</move>
-  	
-  	<delete dir="${dist}/library" />
-  	
-  	<copy todir="${dist}/web">
-  		<fileset dir="web" />
-  	</copy>
-  	
-  	<!--
-  	format the index.html file. 
-  	regular expressions are used to parse the web index.html file. 
-  	key words starting and ending with ## are replaced by values 
-  	defined earlier in the beginning of this build file.
-  	-->
-  	
-  	<replaceregexp file="${dist}/web/index.html"
-  	                         match="##yourLibrary##"
-  	                         replace="${libraryName}"
-  	                         flags="g" />
-  	
-  	<replaceregexp file="${dist}/web/index.html"
-							match="##author##"
-							replace="${author}"
-							flags="g" />
-  	
-  	<replaceregexp file="${dist}/web/index.html"
-							match="##versionNumber##"
-							replace="${versionNumber}"
-							flags="g" />
-  	
-	<replaceregexp file="${dist}/web/index.html"
-							match="##yourLink##"
-  							replace="${yourLink}"
-							flags="g" />
-  	
-  	<replaceregexp file="${dist}/web/index.html"
-  							match="##date##"
-  	  						replace="${date}"
-  	  						flags="g" />
-  	  						
-  	 <replaceregexp file="${dist}/web/index.html"
-  							match="##keywords##"
-  	  						replace="${keywords}"
-  	  						flags="g" />
-  	  						
-  	  						
-  	  						
-  	 <replaceregexp file="${dist}/web/index.html"
-  							match="##tested:platform##"
-  	  						replace="${tested:platform}"
-  	  						flags="g" />
-  	 <replaceregexp file="${dist}/web/index.html"
-  							match="##tested:processingVersion##"
-  	  						replace="${tested:processingVersion}"
-  	  						flags="g" />
-  	 <replaceregexp file="${dist}/web/index.html"
-  							match="##tested:dependencies##"
-  	  						replace="${tested:dependencies}"
-  	  						flags="g" />
-  	 <replaceregexp file="${dist}/web/index.html"
-  							match="##source:host##"
-  	  						replace="${source:host}"
-  	  						flags="g" />
-  	 <replaceregexp file="${dist}/web/index.html"
-  							match="##source:url##"
-  	  						replace="${source:url}"
-  	  						flags="g" />
-  	 <replaceregexp file="${dist}/web/index.html"
-  							match="##source:repository##"
-  	  						replace="${source:repository}"
-  	  						flags="g" />
+  <target name="library.run" depends="library.init">
+    <echo message="building library ..." />
+    <antcall target="generate.structure"><param name="folder" value="library"/></antcall>
+    <antcall target="parse.source" />
+    <antcall target="compile" />
+    <antcall target="generate.jar"><param name="folder" value="library"/></antcall>
+    <antcall target="generate.javadoc" />
+    <antcall target="copyToSketchbook"><param name="folder" value="libraries"/></antcall>
+    <antcall target="generate.distribution" />
+    <antcall target="generate.install.library" />
+    <antcall target="generate.web" />
+    <antcall target="generate.zip" />
+    <delete dir="${project.tmp}"/>
+  </target>
 
-  	
-  	<echo>---------------------</echo>
-  	<antcall target="processExamples" />
-  	<echo>---------------------</echo>
-  	
-  	<replaceregexp file="${dist}/web/index.html"
-  	  							match="##examples##"
-  	  	  						replace=""
-  	  	  						flags="g" />
-  	  	  						
-  	  	  						
-  	<!-- finish organizating library's distribution -->
-  	<mkdir dir="${dist}/web/download" />
-  	<copy file="${dist}/${libraryName}.zip" todir="${dist}/web/download" />
-  	
-  	<copy todir="${processing}/${libraryName}/reference">
-		<fileset dir="${reference}" />
-	</copy>
-  	
-  	<!-- done, finished. -->
-  	<echo>done, finished.</echo>
- </target>
- 
- 
- 	
-	<!-- parsing the examples folder -->
-	<target name="processExamples">
-		<dirset id="examples.contents" dir="examples" excludes="*/*"/>
-		<property name="examples.list" refid="examples.contents"/>
-		<foreach list="${examples.list}" target="addExamples" param="exampleDir" delimiter=";">
-		</foreach>
-	</target>
-		
-	<target name="addExamples">
-		<replaceregexp file="${dist}/web/index.html"
-	  					match="(##examples##)"
-	  	  				replace="&lt;li&gt;&lt;a href=&quot;examples/${exampleDir}/${exampleDir}.pde&quot;&gt;${exampleDir}&lt;/a&gt;&lt;/li&gt; \1"
-	  	  				flags="g" />
-		</target>
+  <target name="copyToSketchbook">
+    <echo message="copying files to the ${folder} folder in your sketchbook." />
+    <!-- copy the jar file to processing's sketchbook libraries folder -->
+    <delete dir="${sketchbook.location}/${folder}/${project.name}" />
+    <mkdir dir="${sketchbook.location}/${folder}/${project.name}" />
+    <copy todir="${sketchbook.location}/${folder}/${project.name}">
+      <fileset dir="${project.tmp}/${project.name}"/>
+    </copy>
+  </target>
+
+  <target name="compile">
+    <javac srcdir="${project.tmp}/${project.name}/src" destdir="${project.bin}" source="${java.target.version}" target="${java.target.version}">
+      <classpath>
+        <path refid="classpath"/>
+      </classpath>
+    </javac>
+    <copy todir="${project.bin.data}">
+      <fileset dir="${project.data}" excludes="README" />
+    </copy>
+  </target>
+
+  <target name="generate.jar">
+    <jar jarfile="${project.tmp}/${project.name}/${folder}/${project.jar.name}" basedir="${project.bin}"/>
+  </target>
+
+  <target name="generate.structure">
+    <delete dir="${project.tmp}" />
+    <mkdir dir="${project.tmp}" />
+    <mkdir dir="${project.tmp}/${project.name}" />
+    <mkdir dir="${project.tmp}/${project.name}/${folder}" />
+    <mkdir dir="${project.tmp}/${project.name}/examples" />
+    <mkdir dir="${project.tmp}/${project.name}/reference" />
+    <mkdir dir="${project.tmp}/${project.name}/src" />
+    <copy todir="${project.tmp}/${project.name}/examples">
+      <fileset dir="${project.examples}">
+        <exclude name="**/*README*"/>
+      </fileset>
+    </copy>
+    <copy todir="${project.tmp}/${project.name}/src">
+      <fileset dir="${project.src}"/>
+    </copy>
+    <copy todir="${project.tmp}/${project.name}/${folder}" flatten="true">
+      <fileset dir="${project.lib}" includes="**/*.jar"/>
+    </copy>
+  </target>
+
+  <target name="parse.source" if="is.normal">
+    <path id="src.contents"><fileset dir="${project.tmp}/${project.name}/src" includes="**/*.java" /></path>
+    <property name="src.list" refid="src.contents" />
+    <foreach list="${src.list}" param="file" target="versionSourcefile" delimiter=":" />
+  </target>
+
+  <target name="generate.distribution" if="is.normal">
+    <mkdir dir="${project.dist}"/>
+    <delete dir="${project.dist.version}"/>
+    <mkdir dir="${project.dist.version}" />
+    <mkdir dir="${project.dist.version}/${project.name}" />
+    <move file="${project.tmp}/${project.name}" toDir="${project.dist.version}" />
+  </target>
+
+  <target name="generate.javadoc" if="is.normal">
+    <!-- create the java reference of the library -->
+    <javadoc bottom="processing library ${project.name} by ${author.name}. ${project.copyright}"
+        classpath="${classpath.full}"
+        destdir="${project.tmp}/${project.name}/reference"
+        verbose="false"
+        stylesheetfile="resources/stylesheet.css"
+        doctitle="Javadocs: ${project.name}"
+        public="true" version="false"
+        windowtitle="Javadocs: ${project.name}">
+
+      <link href="${javadoc.java.href}" />
+      <link href="${javadoc.processing.href}" />
+      <taglet name="ExampleTaglet" path="resources/code" />
+      <fileset dir="${project.tmp}/${project.name}/src" defaultexcludes="yes">
+        <!-- add packages to be added to reference. -->
+        <include name="**/*"/>
+      </fileset>
+    </javadoc>
+  </target>
+
+  <target name="generate.web" if="is.normal">
+    <mkdir dir="${project.dist.version}/web" />
+    <copy todir="${project.dist.version}/web/reference">
+      <fileset dir="${project.dist.version}/${project.name}/reference" />
+    </copy>
+
+    <copy todir="${project.dist.version}/web/examples">
+      <fileset dir="${project.dist.version}/${project.name}/examples" />
+    </copy>
+
+    <copy todir="${project.dist.version}/web">
+      <fileset dir="${project.web}" />
+    </copy>
+
+    <!--
+        format the index.html file.
+        regular expressions are used to parse the web index.html file.
+        key words starting and ending with ## are replaced by values
+        defined earlier in the beginning of this build file.
+    -->
+
+    <replaceregexp file="${project.dist.version}/web/index.html"
+            match="##project.name##"
+            replace="${project.name}"
+            flags="g" />
+
+    <replaceregexp file="${project.dist.version}/web/index.html"
+            match="##project.title##"
+            replace="${project.title}"
+            flags="g" />
+
+    <replaceregexp file="${project.dist.version}/web/index.html"
+            match="##author.name##"
+            replace="${author.name}"
+            flags="g" />
+
+    <replaceregexp file="${project.dist.version}/web/index.html"
+            match="##project.version##"
+            replace="${project.version}"
+            flags="g" />
+
+    <replaceregexp file="${project.dist.version}/web/index.html"
+            match="##author.url##"
+            replace="${author.url}"
+            flags="g" />
+
+    <replaceregexp file="${project.dist.version}/web/index.html"
+              match="##date##"
+              replace="${date}"
+              flags="g" />
+
+    <replaceregexp file="${project.dist.version}/web/index.html"
+           match="##project.keywords##"
+           replace="${project.keywords}"
+           flags="g" />
+
+    <replaceregexp file="${project.dist.version}/web/index.html"
+           match="##tested.platform##"
+           replace="${tested.platform}"
+           flags="g" />
+
+    <replaceregexp file="${project.dist.version}/web/index.html"
+           match="##tested.processingversion##"
+           replace="${tested.processingversion}"
+           flags="g" />
+
+    <replaceregexp file="${project.dist.version}/web/index.html"
+           match="##project.dependencies##"
+           replace="${project.dependencies}"
+           flags="g" />
+
+    <replaceregexp file="${project.dist.version}/web/index.html"
+           match="##source.host##"
+           replace="${source.host}"
+           flags="g" />
+
+    <replaceregexp file="${project.dist.version}/web/index.html"
+           match="##source.url##"
+           replace="${source.url}"
+           flags="g" />
+
+    <replaceregexp file="${project.dist.version}/web/index.html"
+           match="##source.repository##"
+           replace="${source.repository}"
+           flags="g" />
+
+    <replaceregexp file="${project.dist.version}/web/index.html"
+           match="##project.copyright##"
+           replace="${project.copyright}"
+           flags="g" />
+
+    <antcall target="processExamples" />
+
+    <replaceregexp file="${project.dist.version}/web/index.html"
+              match="##project.examples##"
+              replace=""
+              flags="g" />
+  </target>
+
+  <target name="generate.install.library" if="is.normal">
+    <copy file="${install.source}" tofile="${project.dist.version}/INSTALL.txt" />
+    <replaceregexp file="${install.destination}" match="##name##" replace="${project.name}" flags="g" />
+    <replaceregexp file="${install.destination}" match="##folder##" replace="libraries" flags="g" />
+  </target>
+
+  <target name="generate.zip" if="is.normal">
+    <!-- zip the distribution of the library -->
+    <move todir="${project.dist.version}/tmp/${project.name}-${project.version}/${project.name}">
+      <fileset dir="${project.dist.version}/${project.name}" />
+    </move>
+
+    <move file="${install.destination}" tofile="${project.dist.version}/tmp/${project.name}-${project.version}/INSTALL.txt" />
+    <zip destfile="${project.dist.version}/${project.name}-${project.version}.zip"
+         basedir="${project.dist.version}/tmp/${project.name}-${project.version}"
+         excludes="**/.DS_Store"/>
+    <move file="${project.dist.version}/${project.name}-${project.version}.zip" todir="${project.dist.version}/web/download" />
+    <move todir="${project.dist.version}">
+      <fileset dir="${project.dist.version}/web" />
+    </move>
+    <delete dir="${project.dist.version}/tmp" />
+  </target>
+
+  <target name="versionSourcefile">
+    <echo message="${file}" />
+    <replaceregexp file="${file}" match="##author##" replace="${author.name} ${author.url}" flags="g" />
+    <replaceregexp file="${file}" match="##version##" replace="${project.version}" flags="g" />
+    <replaceregexp file="${file}" match="##date##" replace="${date}" flags="g" />
+    <replaceregexp file="${file}" match="##copyright##" replace="${project.copyright}" flags="g" />
+    <replaceregexp file="${file}" match="##name##" replace="${project.name}" flags="g" />
+    <replaceregexp file="${file}" match="##version##" replace="${project.version}" flags="g" />
+  </target>
+
+  <!-- parsing the examples folder -->
+  <target name="processExamples">
+    <dirset id="examples.contents" dir="${project.examples}" excludes="*/*"/>
+    <property name="examples.list" refid="examples.contents"/>
+    <foreach list="${examples.list}" target="addExamples" param="exampleDir" delimiter=";">
+    </foreach>
+  </target>
+
+
+  <target name="addExamples">
+    <echo message="adding example ${exampleDir}" />
+    <replaceregexp file="${project.dist.version}/web/index.html"
+          match="(##project.examples##)"
+          replace="&lt;li&gt;&lt;a href=&quot;examples/${exampleDir}/${exampleDir}.pde&quot;&gt;${exampleDir}&lt;/a&gt;&lt;/li&gt; \1"
+          flags="g" />
+  </target>
+
+  <target name="clean" depends="library.run">
+    <!-- <delete dir="${project.bin}"/> -->
+    <delete dir="${project.tmp}"/>
+    <echo>
+
+${line}
+Name  ${project.name}
+Version  ${project.version}
+Compiled  ${project.compile}
+Sketchbook  ${sketchbook.location}
+${line}
+done, finished.
+${line}
+    </echo>
+  </target>
+
 </project>
 

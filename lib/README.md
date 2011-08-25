@@ -1,0 +1,1 @@
+Libs taken from [themidibus](http://smallbutdigital.com/themidibus.php) and [monomic](http://jkriss.github.com/monomic/) libraries here

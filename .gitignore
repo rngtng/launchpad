@@ -2,3 +2,6 @@ distribution
 bin
 .DS_Store
 reference
+lib/monomic
+lib/themidibus
+*.class

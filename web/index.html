@@ -2,7 +2,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
-<title>##yourLibrary## Processing wrapper class for Novation Launchpad</title>
+<title>##project.title##</title>
 <meta name="description" content="a library for the programming environment processing" />
 <meta name="keywords" content="processing.org, library" />
 <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
@@ -10,20 +10,20 @@
 <meta name="ROBOTS" content="index,follow,archive" />
 <meta http-equiv="imagetoolbar" content="false" />
 <meta name="MSSmartTagsPreventParsing" content="true" />
-<meta name="author" content="##author##" />
+<meta name="author" content="##author.name##" />
 <meta name="Rating" content="General" />
 <meta name="revisit-after" content="7 Days" />
 <meta name="doc-class" content="Living Document" />
 <link rel="stylesheet" type="text/css" href="./stylesheet.css">
 </head>
 <body>
-    <a href="http://github.com/rngtng/launchpad"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+    <a href="##source.repository##" target="_blank"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
 	<div id="container">
-	
+
 		<div id="header">
-			<h1>##yourLibrary##</h1>
+			<h1>##project.title##</h1>
 		</div>
-		
+
 		<div id="menu" class="clear">
 			<ul>
 				<li><a href="#about">About</a> \ </li>
@@ -31,102 +31,102 @@
 				<li><a href="#download">Installation</a> \ </li>
 				<li><a href="#examples">Examples</a> \ </li>
 				<li><a href="./reference/index.html" target="_blank">Reference</a></li>
-				<!-- <li><a href="#demos">Demos</a> \ </li> -->				
+				<!-- <li><a href="#demos">Demos</a> \ </li> -->
 				<!-- <li><a href="#misc">Misc</a> \ </li> -->
 				<!-- <li><a href="#images">Images</a> \ </li> -->
 			</ul>
 		</div>
-		
+
 		<div id="content" class="clear">
-			
+
 			<div id="about">
-			<h2>##yourLibrary##</h2>
+			<h2>##project.name##</h2>
 			<p>
-			A library by <a href="##yourLink##">##author##</a> for the programming environment <a href="http://www.processing.org" target="_blank">processing</a>. Last update, ##date##.
+			A library by <a href="##author.url##">##author.name##</a> for the programming environment <a href="http://www.processing.org" target="_blank">processing</a>. Last update, ##date##.
 			</p>
 			<p>
 			This library provides an interface to access <a href="http://www.novationmusic.com/products/launchpad">novation's launchpad</a> programmatically. It's based on Thomas Jachmanns <a href="http://github.com/thomasjachmann/launchpad">ruby launchpad gem</a>. LEDs can be lighted and button presses can be listened to. In addition, it includes a wrapper for the <a href="http://jkriss.github.com/monomic/">Monomic Library</a> as well.
 			</p>
 			</div>
-			
-			
-			
+
+
+
 			<div id="download" class="clear">
 			<h2>Download</h2>
 			<p>
-			Download ##yourLibrary## version ##versionNumber## in 
-			<a href="./download/##yourLibrary##.zip">.zip format</a>.
+			Download ##project.name## version ##project.version## in
+			<a href="./download/##project.name##-##project.version##.zip">.zip format</a>.
 			</p>
 			<h2>Installation</h2>
 			<p>
-			Unzip and put the extracted ##yourLibrary## folder into the libraries folder of your processing sketches. Reference and examples are included in the ##yourLibrary## folder.
+			Unzip and put the extracted ##project.name## folder into the libraries folder of your processing sketches. Reference and examples are included in the ##project.name## folder.
 			</p>
-			</div>	
-			
-			
-			<div id="resources">
-			<p><strong>Keywords</strong> ##keywords##</p>
-			<p><strong>Reference</strong>. Have a look at the javadoc reference <a href="./reference/index.html" target="_blank">here</a>. a copy of the reference is included in the .zip as well.</p>		
-			<p><strong>Source</strong>. The source code of ##yourLibrary## is available at <a href="##source:url##">##source:host##</a>, and its repository can be browsed <a href="##source:repository##" target="_blank">here</a>.</p>			
 			</div>
-			
+
+
+			<div id="resources">
+			<p><strong>Keywords</strong> ##project.keywords##</p>
+			<p><strong>Reference</strong>. Have a look at the javadoc reference <a href="./reference/index.html" target="_blank">here</a>. a copy of the reference is included in the .zip as well.</p>
+			<p><strong>Source</strong>. The source code of ##project.name## is available at <a href="##source.url##">##source.host##</a>, and its repository can be browsed <a href="##source.repository##" target="_blank">here</a>.</p>
+			</div>
+
 			<div id="examples" class="clear">
 			<h2>Examples</h2>
-			<p>Find a list of examples in the current distribution of ##yourLibrary##, or have a look at them by following the links below.</p>
+			<p>Find a list of examples in the current distribution of ##project.name##, or have a look at them by following the links below.</p>
 			<ul>
-			##examples##
+			##project.examples##
 			</ul>
 			</div>
-			
-			
+
+
 			<div id="info">
 			<h2>Tested</h2>
 			<p>
 			<!-- on which platform has the library been tested? -->
-			<strong>Platform</strong> ##tested:platform##
-			
+			<strong>Platform</strong> ##tested.platform##
+
 			<!-- which processing version did you use for testing your library? -->
-			<br /><strong>Processing</strong> ##tested:processingVersion##
-			
+			<br /><strong>Processing</strong> ##tested.processingversion##
+
 			<!-- does your library depend on any other library or framework? -->
-			<br /><strong>Dependencies</strong> ##tested:dependencies##
+			<br /><strong>Dependencies</strong> ##project.dependencies##
 			</p>
 			</div>
-		
-			
+
+
 			<!-- use the demos section for a list of applets run in a browser. -->
 			<!--
 			<div id="demos" class="clear">
 				<h2>demos</h2>
 				<p>
 				find a list of online applet demos below.
-				
+
 				<ul>
 					<li><a href="./applets/demo/index.html">demo</a></li>
 				</ul>
 				</p>
 			</div>
 			-->
-			
+
 			<!-- use the misc section for other relevant information. Activate the link to the misc section in the menu above. -->
 			<!--
 			<div id="misc" class="clear">
 				<p></p>
 			</div>
 			-->
-			
+
 			<!-- use the images/screenshots section. Activate the link to the misc section in the menu above. -->
 			<!--
 			<div id="images" class="clear">
 			</div>
 			-->
-			
-			
+
+
 			<br class="clear" />
 		</div>
-		
+
 		<div id="footer">
-			<p>by ##author##, 2009.</p>
+			<p>by ##author.name##, ##project.copyright##.</p>
 		</div>
 	</div>
 </body>
