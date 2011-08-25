@@ -1,3 +1,6 @@
 distribution
 bin
+lib
+data
 .DS_Store
+*.class
