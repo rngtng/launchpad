@@ -460,7 +460,7 @@ public class Launchpad implements LMidiCodes, StandardMidiListener {
 	 * Errors raised:
 	 * [Launchpad::NoInputAllowedError] when input is not enabled
 	 */
-	public void midiMessage(MidiMessage message) {
+	public void midiMessage(MidiMessage message, long timestamp) {
 		int code     = message.getStatus();
 		int note     = message.getMessage()[1] & 0xFF;
 		int velocity = message.getMessage()[2] & 0xFF;
