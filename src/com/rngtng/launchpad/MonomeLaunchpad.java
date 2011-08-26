@@ -44,6 +44,15 @@ public class MonomeLaunchpad extends Monome implements LaunchpadListener {
       color_off = new LColor(); //Black
       launchpad.reset();
     }
+
+public MonomeLaunchpad(Object listener, String inputName, String outputName) {
+        super(listener);
+        launchpad = new Launchpad( (PApplet) listener, inputName, outputName);
+        launchpad.addListener(this);      
+        color_on  = new LColor(LColor.RED_HIGH); //full Red
+        color_off = new LColor(); //Black
+        launchpad.reset();
+      }
     
 	////////////////////////////////////////////////// monome functions
 
